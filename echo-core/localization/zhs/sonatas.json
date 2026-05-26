@@ -1,0 +1,7 @@
+{
+  "ECHO_CORE_UNIVERSAL_RESONANCE.name": "基础残响",
+  "ECHO_CORE_UNIVERSAL_RESONANCE.description": "Echo Core MVP 使用的通用合鸣占位。",
+  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_2": "2件：获得少量通用收益。",
+  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_3": "3件：获得中等通用收益。",
+  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_5": "5件：获得完整通用收益。"
+}

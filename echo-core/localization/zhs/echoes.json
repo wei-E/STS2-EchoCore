@@ -1,0 +1,12 @@
+{
+  "ECHO_CORE_ECHO_LEAF_SLIME_S.name": "树叶史莱姆（小）声骸",
+  "ECHO_CORE_ECHO_LEAF_SLIME_S.description": "以树叶史莱姆（小）为原型的声骸。",
+  "ECHO_CORE_ECHO_SHRINKER_BEETLE.name": "缩小甲虫声骸",
+  "ECHO_CORE_ECHO_SHRINKER_BEETLE.description": "以缩小甲虫为原型的声骸。",
+  "ECHO_CORE_ECHO_NIBBIT.name": "小啃兽声骸",
+  "ECHO_CORE_ECHO_NIBBIT.description": "以小啃兽为原型的声骸。",
+  "ECHO_CORE_ECHO_BYRDONIS.name": "多尼斯异鸟声骸",
+  "ECHO_CORE_ECHO_BYRDONIS.description": "以多尼斯异鸟为原型的声骸。",
+  "ECHO_CORE_ECHO_CEREMONIAL_BEAST.name": "仪式兽声骸",
+  "ECHO_CORE_ECHO_CEREMONIAL_BEAST.description": "以仪式兽为原型的声骸。"
+}

@@ -1,0 +1,8 @@
+{
+  "ECHO_CORE_AFFIX_STRENGTH_START.name": "开战力量",
+  "ECHO_CORE_AFFIX_STRENGTH_START.description": "战斗开始时获得力量。",
+  "ECHO_CORE_AFFIX_DEXTERITY_START.name": "开战敏捷",
+  "ECHO_CORE_AFFIX_DEXTERITY_START.description": "战斗开始时获得敏捷。",
+  "ECHO_CORE_AFFIX_BLOCK_START.name": "开战格挡",
+  "ECHO_CORE_AFFIX_BLOCK_START.description": "战斗开始时获得格挡。"
+}

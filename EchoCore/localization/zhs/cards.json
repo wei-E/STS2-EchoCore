@@ -1,0 +1,23 @@
+{
+  "ECHO_CORE_CARD_LEAF_SLIME_S.title": "叶液迸溅",
+  "ECHOCORE-ECHO_CORE_CARD_LEAF_SLIME_S.title": "叶液迸溅",
+  "ECHO_CORE_CARD_LEAF_SLIME_S.description": "造成 {Damage:diff()} 点伤害。将 1 张黏液加入弃牌堆。消耗。",
+  "ECHOCORE-ECHO_CORE_CARD_LEAF_SLIME_S.description": "造成 {Damage:diff()} 点伤害。将 1 张黏液加入弃牌堆。消耗。",
+  "ECHO_CORE_CARD_SHRINKER_BEETLE.title": "缩壳冲撞",
+  "ECHOCORE-ECHO_CORE_CARD_SHRINKER_BEETLE.title": "缩壳冲撞",
+  "ECHO_CORE_CARD_SHRINKER_BEETLE.description": "造成 {Damage:diff()} 点伤害。给予 {Weak:diff()} 层虚弱。消耗。",
+  "ECHOCORE-ECHO_CORE_CARD_SHRINKER_BEETLE.description": "造成 {Damage:diff()} 点伤害。给予 {Weak:diff()} 层虚弱。消耗。",
+  "ECHO_CORE_CARD_NIBBIT.title": "小啃",
+  "ECHOCORE-ECHO_CORE_CARD_NIBBIT.title": "小啃",
+  "ECHO_CORE_CARD_NIBBIT.description": "造成 {Damage:diff()} 点伤害。消耗。",
+  "ECHOCORE-ECHO_CORE_CARD_NIBBIT.description": "造成 {Damage:diff()} 点伤害。消耗。",
+  "ECHO_CORE_CARD_BYRDONIS.title": "异鸟俯冲",
+  "ECHOCORE-ECHO_CORE_CARD_BYRDONIS.title": "异鸟俯冲",
+  "ECHO_CORE_CARD_BYRDONIS.description": "获得 {Block:diff()} 点格挡。造成 {Damage:diff()} 点伤害。消耗。",
+  "ECHOCORE-ECHO_CORE_CARD_BYRDONIS.description": "获得 {Block:diff()} 点格挡。造成 {Damage:diff()} 点伤害。消耗。",
+  "ECHO_CORE_CARD_CEREMONIAL_BEAST.title": "仪式践踏",
+  "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.title": "仪式践踏",
+  "ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "造成 {Damage:diff()} 点伤害。给予 {Vulnerable:diff()} 层易伤。消耗。"
+  ,
+  "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "造成 {Damage:diff()} 点伤害。给予 {Vulnerable:diff()} 层易伤。消耗。"
+}

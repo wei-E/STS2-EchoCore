@@ -1,0 +1,12 @@
+{
+  "ECHO_CORE_ECHO_LEAF_SLIME_S.name": "Leaf Slime (S) Echo",
+  "ECHO_CORE_ECHO_LEAF_SLIME_S.description": "An echo based on Leaf Slime (S).",
+  "ECHO_CORE_ECHO_SHRINKER_BEETLE.name": "Shrinker Beetle Echo",
+  "ECHO_CORE_ECHO_SHRINKER_BEETLE.description": "An echo based on Shrinker Beetle.",
+  "ECHO_CORE_ECHO_NIBBIT.name": "Nibbit Echo",
+  "ECHO_CORE_ECHO_NIBBIT.description": "An echo based on Nibbit.",
+  "ECHO_CORE_ECHO_BYRDONIS.name": "Byrdonis Echo",
+  "ECHO_CORE_ECHO_BYRDONIS.description": "An echo based on Byrdonis.",
+  "ECHO_CORE_ECHO_CEREMONIAL_BEAST.name": "Ceremonial Beast Echo",
+  "ECHO_CORE_ECHO_CEREMONIAL_BEAST.description": "An echo based on Ceremonial Beast."
+}

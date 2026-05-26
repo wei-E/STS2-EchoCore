@@ -1,0 +1,23 @@
+{
+  "ECHO_CORE_CARD_LEAF_SLIME_S.title": "Leafy Splash",
+  "ECHOCORE-ECHO_CORE_CARD_LEAF_SLIME_S.title": "Leafy Splash",
+  "ECHO_CORE_CARD_LEAF_SLIME_S.description": "Deal {Damage:diff()} damage. Add 1 Slimed to your discard pile. Exhaust.",
+  "ECHOCORE-ECHO_CORE_CARD_LEAF_SLIME_S.description": "Deal {Damage:diff()} damage. Add 1 Slimed to your discard pile. Exhaust.",
+  "ECHO_CORE_CARD_SHRINKER_BEETLE.title": "Shrinking Charge",
+  "ECHOCORE-ECHO_CORE_CARD_SHRINKER_BEETLE.title": "Shrinking Charge",
+  "ECHO_CORE_CARD_SHRINKER_BEETLE.description": "Deal {Damage:diff()} damage. Apply {Weak:diff()} Weak. Exhaust.",
+  "ECHOCORE-ECHO_CORE_CARD_SHRINKER_BEETLE.description": "Deal {Damage:diff()} damage. Apply {Weak:diff()} Weak. Exhaust.",
+  "ECHO_CORE_CARD_NIBBIT.title": "Nibble",
+  "ECHOCORE-ECHO_CORE_CARD_NIBBIT.title": "Nibble",
+  "ECHO_CORE_CARD_NIBBIT.description": "Deal {Damage:diff()} damage. Exhaust.",
+  "ECHOCORE-ECHO_CORE_CARD_NIBBIT.description": "Deal {Damage:diff()} damage. Exhaust.",
+  "ECHO_CORE_CARD_BYRDONIS.title": "Byrdonis Dive",
+  "ECHOCORE-ECHO_CORE_CARD_BYRDONIS.title": "Byrdonis Dive",
+  "ECHO_CORE_CARD_BYRDONIS.description": "Gain {Block:diff()} Block. Deal {Damage:diff()} damage. Exhaust.",
+  "ECHOCORE-ECHO_CORE_CARD_BYRDONIS.description": "Gain {Block:diff()} Block. Deal {Damage:diff()} damage. Exhaust.",
+  "ECHO_CORE_CARD_CEREMONIAL_BEAST.title": "Ritual Stomp",
+  "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.title": "Ritual Stomp",
+  "ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "Deal {Damage:diff()} damage. Apply {Vulnerable:diff()} Vulnerable. Exhaust."
+  ,
+  "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "Deal {Damage:diff()} damage. Apply {Vulnerable:diff()} Vulnerable. Exhaust."
+}

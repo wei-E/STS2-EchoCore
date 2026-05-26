@@ -1,0 +1,4 @@
+{
+  "ECHO_RUN_STATE_MODIFIER.title": "Echo State",
+  "ECHO_RUN_STATE_MODIFIER.description": "Stores Echo inventory, equips, and tuning state for this run."
+}

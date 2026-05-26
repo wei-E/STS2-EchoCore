@@ -1,0 +1,8 @@
+{
+  "ECHO_CORE_AFFIX_STRENGTH_START.name": "Opening Strength",
+  "ECHO_CORE_AFFIX_STRENGTH_START.description": "Gain Strength at combat start.",
+  "ECHO_CORE_AFFIX_DEXTERITY_START.name": "Opening Dexterity",
+  "ECHO_CORE_AFFIX_DEXTERITY_START.description": "Gain Dexterity at combat start.",
+  "ECHO_CORE_AFFIX_BLOCK_START.name": "Opening Block",
+  "ECHO_CORE_AFFIX_BLOCK_START.description": "Gain Block at combat start."
+}

@@ -1,0 +1,5 @@
+{
+  "OPTION_ECHO_TUNE.name": "调谐",
+  "OPTION_ECHO_TUNE.description": "开启一次声骸调谐。随后在声骸面板中选择一个声骸，消耗金币重骰它的唯一词条。",
+  "OPTION_ECHO_TUNE.descriptionDisabled": "当前没有可调谐的声骸。"
+}

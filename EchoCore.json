@@ -1,0 +1,11 @@
+{
+  "id": "EchoCore",
+  "name": "Echo Core",
+  "author": "维E气泡水 一条咸鱼666666",
+  "description": "Framework mod for Wuthering Waves inspired Echo systems.",
+  "version": "0.1.0",
+  "has_pck": true,
+  "has_dll": true,
+  "dependencies": ["BaseLib"],
+  "affects_gameplay": true
+}

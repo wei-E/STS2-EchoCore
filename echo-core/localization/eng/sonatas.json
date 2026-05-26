@@ -1,0 +1,7 @@
+{
+  "ECHO_CORE_UNIVERSAL_RESONANCE.name": "Basic Reverberation",
+  "ECHO_CORE_UNIVERSAL_RESONANCE.description": "A generic sonata placeholder used by the Echo Core MVP.",
+  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_2": "2 pieces: gain a small generic benefit.",
+  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_3": "3 pieces: gain a moderate generic benefit.",
+  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_5": "5 pieces: gain the full generic benefit."
+}

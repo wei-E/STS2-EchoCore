@@ -1,0 +1,5 @@
+{
+  "OPTION_ECHO_TUNE.name": "Tune",
+  "OPTION_ECHO_TUNE.description": "Open one echo tuning opportunity. Then choose an echo in the echo panel and spend gold to reroll its only affix.",
+  "OPTION_ECHO_TUNE.descriptionDisabled": "You do not have any echoes that can be tuned right now."
+}
