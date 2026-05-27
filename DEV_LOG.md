@@ -4,6 +4,29 @@
 - 最后更新：`2026-05-26`
 - 当前阶段：`Phase 5 主动技 MVP`
 
+## 2026-05-27 - 变身主动技规划文档
+
+### Summary
+- 输出 `Morph / 变身型主动技` 的独立设计文档，先固定玩法态和视觉态边界。
+- 当前结论是把变身主动技拆成两阶段：先做玩法态 MVP，再做视觉替换 MVP。
+
+### Changes
+- 新增文档：`E:\Code\sts2mod-dev\美术资源\声骸系统\声骸变身主动技设计.md`
+- 文档内容包含：
+  - `Morph` 与 `TacticalCard` 的区别
+  - `ActiveMorphState`、`MorphDefinition`、`MorphBuffDefinition` 草案
+  - `Inklet -> Slippery 1` 的首个样例
+  - Buff 回收规则
+  - 冷却、持续时间、重复施放限制
+  - 视觉替换复杂度评估与分阶段实施建议
+
+### Verification
+- 本次为文档规划，不涉及代码和资源导出。
+
+### Next
+- 进入 `Morph-1`：只做玩法态 MVP，不做模型替换。
+- 首个实现样例使用 `Inklet`，效果为 `Slippery 1`，持续 `2` 回合，冷却 `4` 回合。
+
 ## 2026-05-26 - 主动技卡模型注册修复
 
 ### Summary
@@ -23,6 +46,61 @@
 ### Next
 - 进游戏验证 `声骸技` 按钮能正常向手牌加入对应主动技卡。
 - 若仍有报错，下一步直接在初始化日志里打印 5 张主动技卡的最终 `ModelId` 与 `ModelDb.Contains` 状态。
+
+## 2026-05-26 - 声骸仓库三栏 UI 首版
+
+### Summary
+- 将原来的文本式浮层重构为三栏仓库 UI：左侧装备栏、中间声骸列表、右侧详情面板。
+- 接入现有素材 `背景 / 左侧装备栏 / 中间声骸方框`，右侧详情与缺失状态图标先用文字和纯色占位。
+- 保留原有库存、装备、调谐、主动技逻辑，交互改为“先选中间声骸，再点左侧槽位装备”。
+
+### Changes
+- `Scripts/UI/EchoInventoryOverlay.cs`：重写仓库 UI 布局，新增全屏背景、装备栏槽位头像、网格化声骸列表、详情区、装备/卸下/调谐反馈。
+- `echo-core/ui/echoes/layout/inventory_bg.png`：接入仓库背景素材。
+- `echo-core/ui/echoes/layout/equipment_sidebar.png`：接入左侧装备栏素材。
+- `echo-core/ui/echoes/layout/inventory_card_frame.png`：接入中间声骸卡片框素材。
+
+### Interaction Notes
+- 跑图中点击 `声骸` 打开仓库，战斗中仍只显示 `声骸技` 按钮。
+- 中间列表点击声骸会刷新右侧详情。
+- 左侧槽位点击后，会将当前选中的声骸装备到对应槽位。
+- 右侧提供 `卸下` 与 `调谐` 按钮，并显示文本反馈。
+
+### Verification
+- Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`，0 warning / 0 error。
+- Export：PASS，Godot `--export-pack` 成功重新导出 `EchoCore.pck`。
+- Runtime file sync：PASS，游戏目录 `mods/EchoCore/EchoCore.pck` 与本地导出文件 SHA256 一致。
+
+### Known Gaps
+- 右侧详情中的主动技描述暂用本地化文本清洗后展示，尚未解析出运行时精确数值。
+- 主声骸标记、已装备角标、稀有度边框、正式按钮美术仍缺资源，当前用文字与高亮占位。
+- 尚未做拖拽装备与分辨率专项微调，当前先按 1080p 主布局适配。
+
+### Next
+- 进游戏验证三栏布局在 `1920x1080` 与更低分辨率下是否有遮挡或滚动异常。
+- 根据试玩反馈继续补主声骸标识、已装备角标与右侧详情排版。
+
+## 2026-05-26 - 仓库 UI 自适应与右侧详情排版修正
+
+### Summary
+- 将左侧装备栏改为按素材原始宽高比随高度缩放，确保始终与背景内容区同高。
+- 槽位按钮坐标改为基于素材原图坐标缩放，避免分辨率变化后与底图错位。
+- 右侧详情区改成更稳定的单行元信息布局，并加入纵向滚动，修复 `COST` 被挤成竖排的问题。
+
+### Changes
+- `Scripts/UI/EchoInventoryOverlay.cs`：新增左栏原始尺寸常量，按 `sidebarScale = contentHeight / SidebarSourceHeight` 计算左栏宽度和槽位坐标。
+- `Scripts/UI/EchoInventoryOverlay.cs`：右侧 `COST` 行拆分为 `COST label + 类型 label`，不再依赖可换行文本。
+- `Scripts/UI/EchoInventoryOverlay.cs`：详情面板内部新增 `ScrollContainer`，低分辨率下允许详情滚动查看。
+- `Scripts/UI/EchoInventoryOverlay.cs`：说明文本改为分行展示 `形态 / 调谐次数 / 状态`，减少横向拥挤。
+
+### Verification
+- Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`，0 warning / 0 error。
+- Export：PASS，Godot `--export-pack` 成功重新导出 `EchoCore.pck`。
+- Runtime file sync：PASS，已同步最新 `EchoCore.pck` 到游戏 `mods/EchoCore/`。
+
+### Next
+- 进游戏确认左侧装备栏在不同分辨率下是否仍与素材槽位完全对齐。
+- 若对齐稳定，下一轮再细修右侧标题字号、段落间距和中间列表的卡片信息密度。
 
 ## 2026-05-26 - 主动技卡本地化键修复
 
