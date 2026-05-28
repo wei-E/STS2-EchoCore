@@ -15,6 +15,7 @@ public sealed record EchoDefinition(
     EchoFormType FormType,
     IReadOnlyList<string> SonataIds,
     string? SkillCardId,
+    string? BuffSkillId,
     int SkillCooldownTurns,
     IReadOnlyList<string> DropTags,
     string? SourceMonsterId,

@@ -95,7 +95,9 @@ public static class EchoPersistenceService
         {
             EchoRunStateModifier modifier = EnsureModifier(runState);
             EchoRunSnapshot snapshot = BuildSnapshot();
-            modifier.SetSnapshot(JsonSerializer.Serialize(snapshot, JsonOptions));
+            string snapshotJson = JsonSerializer.Serialize(snapshot, JsonOptions);
+            modifier.SetSnapshot(snapshotJson);
+            Log.Info($"[EchoCore] Persisted echo snapshot. chars={snapshotJson.Length}, players={snapshot.Players.Count}, pendingTuning={snapshot.PendingTuningPlayerNetIds.Count}");
         }
         catch (Exception exception)
         {
@@ -125,6 +127,7 @@ public static class EchoPersistenceService
         EchoRunStateModifier? existingModifier = runState.Modifiers.OfType<EchoRunStateModifier>().FirstOrDefault();
         if (existingModifier != null)
         {
+            Log.Info("[EchoCore] Reusing existing EchoRunStateModifier on run.");
             return existingModifier;
         }
 
@@ -133,6 +136,7 @@ public static class EchoPersistenceService
             ?? throw new InvalidOperationException("Failed to create EchoRunStateModifier.");
         modifier.OnRunCreated(runState);
         runState.AddModifierDebug(modifier);
+        Log.Info("[EchoCore] Added EchoRunStateModifier to current run.");
         return modifier;
     }
 

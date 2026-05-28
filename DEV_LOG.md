@@ -27,6 +27,57 @@
 - 进入 `Morph-1`：只做玩法态 MVP，不做模型替换。
 - 首个实现样例使用 `Inklet`，效果为 `Slippery 1`，持续 `2` 回合，冷却 `4` 回合。
 
+## 2026-05-27 - Buff 型主动技基线文档
+
+### Summary
+- 根据多人适配复杂度评估，调整主动技扩展方向。
+- 当前推荐路线从“视觉化身优先”切换为“Buff 型主动技优先”。
+
+### Changes
+- 保留旧文档 `E:\Code\sts2mod-dev\美术资源\声骸系统\声骸变身主动技设计.md` 作为视觉化身参考存档。
+- 新增基线文档：`E:\Code\sts2mod-dev\美术资源\声骸系统\声骸Buff型主动技设计.md`
+- 新文档明确：
+  - 主动技点击后直接施加 Buff
+  - Buff 是否限时由具体 `Power` 自己决定，不强制统一回合数
+  - 首个样例仍为 `Inklet -> Slippery 1`
+  - 当前不做视觉替换
+
+### Verification
+- 本次为文档调整，不涉及代码和资源导出。
+
+### Next
+- 后续实现按 `声骸Buff型主动技设计.md` 作为优先基线推进。
+- `Inklet` MVP 先直接施加原版 `SlipperyPower 1`，不额外叠加统一回合限制。
+- 若单机后续需要视觉化身，再回到旧文档继续扩展。
+
+## 2026-05-27 - Inklet Buff 型主动技 MVP
+
+### Summary
+- 正式接入第一只 Buff 型主动技声骸：`Inklet / 墨宝`。
+- 当前实现不生成卡牌，点击主声骸主动技按钮后直接给玩家施加原版 `SlipperyPower 1`。
+
+### Changes
+- `Scripts/Echoes/EchoDefinition.cs`：为声骸定义新增 `BuffSkillId`，支持卡牌主动技和 Buff 主动技并存。
+- `Scripts/BuffSkills/BuffSkillModels.cs`：新增 Buff 主动技定义与施加规则模型。
+- `Scripts/Registry/EchoRegistry.cs`：新增 Buff 主动技注册与查询。
+- `Scripts/Registry/VanillaEchoBootstrap.cs`：
+  - 注册 `echo_core:inklet_slippery`
+  - 新增 `echo_core:monster_inklet`
+  - 将 `Inklet` 设为 `Morph` 形态下的 Buff 型主动技样例
+- `Scripts/Services/EchoBuffSkillService.cs`：新增 Buff 型主动技执行器，MVP 先支持 `SLIPPERY -> SlipperyPower`。
+- `Scripts/Services/EchoActiveSkillService.cs`：主动技按钮从单一卡牌分支扩展为“卡牌 / Buff”双分支，并保留统一冷却。
+- `Scripts/UI/EchoInventoryOverlay.cs`：右侧主动技详情支持显示 Buff 型主动技描述，不再只支持卡牌描述。
+- `EchoCore/localization/*/monsters.json`：补充 `Inklet` 声骸和 `Inklet` Buff 主动技中英文文案。
+
+### Verification
+- Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`，0 warning / 0 error。
+- Export：PASS，Godot `--export-pack` 成功重新导出 `EchoCore.pck`。
+- Runtime file sync：PASS，已同步最新 `EchoCore.dll` 与 `EchoCore.pck` 到游戏 `mods/EchoCore/`。
+
+### Next
+- 进游戏验证 `Inklet` 掉落、装备到槽位 1 后，点击 `声骸技` 是否获得 `Slippery 1`。
+- 若链路稳定，再扩第二只 Buff 型主动技样例。
+
 ## 2026-05-26 - 主动技卡模型注册修复
 
 ### Summary
@@ -302,3 +353,60 @@
 
 ### Next
 - Phase 2：实现战斗胜利后按来源怪物生成 1 个声骸奖励，并建立最小库存/装备状态。
+
+## 2026-05-27 - 奖励悬浮持久化文案修正
+
+### Summary
+- 修正声骸奖励悬浮提示里仍显示“临时库存 / 暂未持久化”的过期文案。
+- 当前持久化实现并未被移除；截图中的问题是提示文本停留在 Phase 2 早期版本，和实际功能状态不一致。
+
+### Changes
+- `Scripts/Rewards/EchoReward.cs`
+  - 类注释改为“加入 EchoCore 本局库存，并通过持久化服务写入当前 Run modifier”。
+  - 奖励悬浮提示改为“库存、装备槽和调谐状态会随当前 Run 存档恢复”。
+
+### Verification
+- Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`，0 warning / 0 error。
+- Runtime file sync：PASS，构建后已自动同步最新 `EchoCore.dll` 到游戏目录。
+
+### Next
+- 进游戏确认奖励悬浮提示已更新，不再误导为“未持久化”。
+- 如果实际恢复链路仍异常，再抓 `继续游戏` 前后的日志，排查 `EchoPersistenceService` / `EchoRunStateModifier`。
+
+## 2026-05-27 - 持久化空快照与读档 Overlay 报错修复
+
+### Summary
+- 通过 `current_run.save` 确认 `MODIFIER.ECHO_RUN_STATE_MODIFIER` 已写入存档，但只有 `id` 没有 `props`，说明自定义 modifier 本体存在，而 `EchoCoreSnapshotJson` 没有进入序列化字段。
+- 同时修复读档进入 `NRun` 时 `EchoInventoryOverlay` 使用过高 `ZIndex` 触发的 Godot 报错，避免 UI 初始化在恢复流程附近制造噪音。
+
+### Root Cause
+- `current_run.save` 中存在：
+  - `id: "MODIFIER.ECHO_RUN_STATE_MODIFIER"`
+  - 但缺少 `props`
+- 这意味着 `EchoRunStateModifier` 很可能没有稳定进入 `SavedPropertiesTypeCache`，导致 `[SavedProperty] EchoCoreSnapshotJson` 没被序列化。
+- 另一个独立问题是 `EchoInventoryOverlay._Ready()` 使用 `ZIndex = 5000`，超过 Godot `CanvasItem` 上限，读档恢复时会在 `NRun._Ready` 链路报错。
+
+### Changes
+- `Scripts/Init/Entry.cs`
+  - 显式调用 `SavedPropertiesTypeCache.InjectTypeIntoCache(typeof(EchoRunStateModifier))`，不再依赖框架扫描是否命中。
+- `Scripts/UI/EchoInventoryOverlay.cs`
+  - `ZIndex` 从 `5000` 调整为安全值 `1024`。
+- `Scripts/Services/EchoPersistenceService.cs`
+  - 新增持久化日志，记录快照字符数、玩家数、调谐待处理数量。
+  - 新增 modifier 复用 / 首次挂载日志，便于判断运行时到底有没有把状态挂到当前 run。
+
+### Verification
+- Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`，0 warning / 0 error。
+- Save inspection：PASS，已确认问题前的 `current_run.save` 中 modifier 存在但无 `props`，本轮修复就是针对这一点。
+
+### Next
+- 重新跑一遍：
+  1. 获得一个声骸
+  2. 装备到槽位
+  3. 退主菜单
+  4. 继续游戏
+- 检查 `godot.log` 中是否出现：
+  - `Added EchoRunStateModifier to current run.`
+  - `Persisted echo snapshot. chars=...`
+  - `Restored echo persistence snapshot. players=...`
+- 再检查 `current_run.save` 中 `MODIFIER.ECHO_RUN_STATE_MODIFIER` 下是否出现 `props.strings -> EchoCoreSnapshotJson`

@@ -1,4 +1,5 @@
 using EchoCore.Scripts.Affixes;
+using EchoCore.Scripts.BuffSkills;
 using EchoCore.Scripts.Cards;
 using EchoCore.Scripts.Echoes;
 using EchoCore.Scripts.Sonata;
@@ -15,10 +16,12 @@ public static class VanillaEchoBootstrap
     public const string UniversalSonataId = "echo_core:universal_resonance";
     public const string HiddenLightSonataId = "echo_core:hidden_light";
     public const string BasicAffixPoolId = "echo_core:basic";
+    public const string InkletSlipperyBuffSkillId = "echo_core:inklet_slippery";
 
     public static void RegisterAll()
     {
         RegisterAffixes();
+        RegisterBuffSkills();
         RegisterSonatas();
         RegisterEchoes();
     }
@@ -89,6 +92,17 @@ public static class VanillaEchoBootstrap
             ]));
     }
 
+    private static void RegisterBuffSkills()
+    {
+        EchoRegistry.RegisterBuffSkill(new BuffSkillDefinition(
+            InkletSlipperyBuffSkillId,
+            "ECHO_CORE_BUFF_SKILL_INKLET.name",
+            "ECHO_CORE_BUFF_SKILL_INKLET.description",
+            [
+                new BuffSkillPowerDefinition("SLIPPERY", 1m, BuffSkillTargetType.Self),
+            ]));
+    }
+
     private static void RegisterEchoes()
     {
         RegisterVanillaEcho(
@@ -97,6 +111,7 @@ public static class VanillaEchoBootstrap
             descriptionKey: "ECHO_CORE_ECHO_LEAF_SLIME_S.description",
             sourceMonsterId: "LEAF_SLIME_S",
             skillCardId: EchoSkillCardRegistry.GetCardEntry<EchoCoreCardLeafSlimeS>(),
+            buffSkillId: null,
             echoClass: EchoClass.Common,
             cost: 1,
             dropTags: ["act1", "slime", "common"]);
@@ -107,6 +122,7 @@ public static class VanillaEchoBootstrap
             descriptionKey: "ECHO_CORE_ECHO_SHRINKER_BEETLE.description",
             sourceMonsterId: "SHRINKER_BEETLE",
             skillCardId: EchoSkillCardRegistry.GetCardEntry<EchoCoreCardShrinkerBeetle>(),
+            buffSkillId: null,
             echoClass: EchoClass.Common,
             cost: 1,
             dropTags: ["act1", "beetle", "common"]);
@@ -117,9 +133,22 @@ public static class VanillaEchoBootstrap
             descriptionKey: "ECHO_CORE_ECHO_NIBBIT.description",
             sourceMonsterId: "NIBBIT",
             skillCardId: EchoSkillCardRegistry.GetCardEntry<EchoCoreCardNibbit>(),
+            buffSkillId: null,
             echoClass: EchoClass.Common,
             cost: 1,
             dropTags: ["act1", "nibbit", "common"]);
+
+        RegisterVanillaEcho(
+            id: "echo_core:monster_inklet",
+            nameKey: "ECHO_CORE_ECHO_INKLET.name",
+            descriptionKey: "ECHO_CORE_ECHO_INKLET.description",
+            sourceMonsterId: "INKLET",
+            skillCardId: null,
+            buffSkillId: InkletSlipperyBuffSkillId,
+            echoClass: EchoClass.Common,
+            cost: 1,
+            formType: EchoFormType.Morph,
+            dropTags: ["act1", "inklet", "common"]);
 
         RegisterVanillaEcho(
             id: "echo_core:monster_byrdonis",
@@ -127,6 +156,7 @@ public static class VanillaEchoBootstrap
             descriptionKey: "ECHO_CORE_ECHO_BYRDONIS.description",
             sourceMonsterId: "BYRDONIS",
             skillCardId: EchoSkillCardRegistry.GetCardEntry<EchoCoreCardByrdonis>(),
+            buffSkillId: null,
             echoClass: EchoClass.Elite,
             cost: 3,
             dropTags: ["act1", "elite", "byrdonis"],
@@ -138,6 +168,7 @@ public static class VanillaEchoBootstrap
             descriptionKey: "ECHO_CORE_ECHO_CEREMONIAL_BEAST.description",
             sourceMonsterId: "CEREMONIAL_BEAST",
             skillCardId: EchoSkillCardRegistry.GetCardEntry<EchoCoreCardCeremonialBeast>(),
+            buffSkillId: null,
             echoClass: EchoClass.Overlord,
             cost: 4,
             dropTags: ["act1", "boss", "ceremonial_beast"]);
@@ -148,10 +179,12 @@ public static class VanillaEchoBootstrap
         string nameKey,
         string descriptionKey,
         string sourceMonsterId,
-        string skillCardId,
+        string? skillCardId,
+        string? buffSkillId,
         EchoClass echoClass,
         int cost,
         IReadOnlyList<string> dropTags,
+        EchoFormType formType = EchoFormType.TacticalCard,
         IReadOnlyList<string>? sonataIds = null)
     {
         EchoRegistry.RegisterEcho(new EchoDefinition(
@@ -162,9 +195,10 @@ public static class VanillaEchoBootstrap
             OwnerModId,
             echoClass,
             cost,
-            EchoFormType.TacticalCard,
+            formType,
             sonataIds ?? [UniversalSonataId],
             skillCardId,
+            buffSkillId,
             GetDefaultSkillCooldownTurns(echoClass),
             dropTags,
             sourceMonsterId,

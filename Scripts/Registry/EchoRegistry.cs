@@ -1,4 +1,5 @@
 using EchoCore.Scripts.Affixes;
+using EchoCore.Scripts.BuffSkills;
 using EchoCore.Scripts.Echoes;
 using EchoCore.Scripts.Sonata;
 
@@ -12,11 +13,14 @@ public static class EchoRegistry
     private static readonly Dictionary<string, EchoDefinition> EchoesById = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, EchoDefinition> EchoesByMonsterId = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, EchoAffixDefinition> AffixesById = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, BuffSkillDefinition> BuffSkillsById = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, SonataDefinition> SonatasById = new(StringComparer.OrdinalIgnoreCase);
 
     public static IReadOnlyCollection<EchoDefinition> Echoes => EchoesById.Values;
 
     public static IReadOnlyCollection<EchoAffixDefinition> Affixes => AffixesById.Values;
+
+    public static IReadOnlyCollection<BuffSkillDefinition> BuffSkills => BuffSkillsById.Values;
 
     public static IReadOnlyCollection<SonataDefinition> Sonatas => SonatasById.Values;
 
@@ -25,6 +29,7 @@ public static class EchoRegistry
         EchoesById.Clear();
         EchoesByMonsterId.Clear();
         AffixesById.Clear();
+        BuffSkillsById.Clear();
         SonatasById.Clear();
     }
 
@@ -85,6 +90,14 @@ public static class EchoRegistry
         }
     }
 
+    public static void RegisterBuffSkill(BuffSkillDefinition definition)
+    {
+        if (!BuffSkillsById.TryAdd(definition.Id, definition))
+        {
+            throw new InvalidOperationException($"Echo buff skill already registered: {definition.Id}");
+        }
+    }
+
     public static void RegisterSonata(SonataDefinition definition)
     {
         if (!SonatasById.TryAdd(definition.Id, definition))
@@ -106,6 +119,11 @@ public static class EchoRegistry
     public static bool TryGetAffix(string id, out EchoAffixDefinition definition)
     {
         return AffixesById.TryGetValue(id, out definition!);
+    }
+
+    public static bool TryGetBuffSkill(string id, out BuffSkillDefinition definition)
+    {
+        return BuffSkillsById.TryGetValue(id, out definition!);
     }
 
     public static bool TryGetSonata(string id, out SonataDefinition definition)

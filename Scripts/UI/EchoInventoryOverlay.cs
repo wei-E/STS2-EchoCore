@@ -103,7 +103,9 @@ public sealed partial class EchoInventoryOverlay : Control
     {
         MouseFilter = MouseFilterEnum.Ignore;
         SetAnchorsPreset(LayoutPreset.FullRect);
-        ZIndex = 5000;
+        // Godot CanvasItem 的 ZIndex 有上限，超过后会在读档进入 NRun 时直接报错。
+        // 这里保持较高层级即可，不需要逼近引擎极限。
+        ZIndex = 1024;
         BuildOpenButton();
         BuildActiveSkillButton();
         BuildPanel();
@@ -1051,25 +1053,46 @@ public sealed partial class EchoInventoryOverlay : Control
 
     private static string GetSkillSummary(EchoDefinition definition)
     {
-        if (definition.FormType != EchoFormType.TacticalCard || string.IsNullOrWhiteSpace(definition.SkillCardId))
+        if (definition.FormType == EchoFormType.TacticalCard && !string.IsNullOrWhiteSpace(definition.SkillCardId))
         {
-            return "当前版本未实现该形态的战斗主动技。";
+            string key = definition.SkillCardId!;
+            string skillName = GetLocStringOrEmpty("cards", $"{key}.title");
+            if (string.IsNullOrWhiteSpace(skillName))
+            {
+                skillName = GetLocStringOrEmpty("cards", $"ECHOCORE-{key}.title");
+            }
+
+            string rawDescription = GetLocStringOrEmpty("cards", $"{key}.description");
+            if (string.IsNullOrWhiteSpace(rawDescription))
+            {
+                rawDescription = GetLocStringOrEmpty("cards", $"ECHOCORE-{key}.description");
+            }
+
+            if (string.IsNullOrWhiteSpace(rawDescription))
+            {
+                rawDescription = "该主动技描述暂未配置。";
+            }
+
+            string summary = SanitizeCardDescription(rawDescription);
+            if (string.IsNullOrWhiteSpace(skillName))
+            {
+                skillName = "未命名主动技";
+            }
+
+            return $"{skillName}\n{summary}\n冷却回合：{definition.SkillCooldownTurns}";
         }
 
-        string key = definition.SkillCardId!;
-        string rawDescription = GetLocStringOrEmpty("cards", $"{key}.description");
-        if (string.IsNullOrWhiteSpace(rawDescription))
+        if (definition.FormType == EchoFormType.Morph && !string.IsNullOrWhiteSpace(definition.BuffSkillId))
         {
-            rawDescription = GetLocStringOrEmpty("cards", $"ECHOCORE-{key}.description");
+            if (EchoRegistry.TryGetBuffSkill(definition.BuffSkillId, out var buffSkill))
+            {
+                string skillName = GetLocStringWithFallback("monsters", buffSkill.NameKey, "未命名主动技");
+                string description = GetLocStringWithFallback("monsters", buffSkill.DescriptionKey, "该主动技描述暂未配置。");
+                return $"{skillName}\n{description}\n冷却回合：{definition.SkillCooldownTurns}";
+            }
         }
 
-        if (string.IsNullOrWhiteSpace(rawDescription))
-        {
-            rawDescription = "该主动技描述暂未配置。";
-        }
-
-        string summary = SanitizeCardDescription(rawDescription);
-        return $"{summary}\n冷却回合：{definition.SkillCooldownTurns}";
+        return "当前版本未实现该形态的战斗主动技。";
     }
 
     private static string GetAffixSummary(EchoInstance instance)
@@ -1158,7 +1181,7 @@ public sealed partial class EchoInventoryOverlay : Control
     private static string GetLocalizedTextOrFallback(string key)
     {
         var localized = new LocString("monsters", key).GetFormattedText();
-        if (!string.IsNullOrWhiteSpace(localized) && !string.Equals(localized, $"monsters.{key}", StringComparison.Ordinal))
+        if (HasResolvedLocalization("monsters", key, localized))
         {
             return localized;
         }
@@ -1188,7 +1211,22 @@ public sealed partial class EchoInventoryOverlay : Control
     private static string GetLocStringOrEmpty(string table, string key)
     {
         var localized = new LocString(table, key).GetFormattedText();
-        return string.Equals(localized, $"{table}.{key}", StringComparison.Ordinal) ? string.Empty : localized;
+        return HasResolvedLocalization(table, key, localized) ? localized : string.Empty;
+    }
+
+    /// <summary>
+    /// STS2/Mod 本地化在未命中时有时返回 `table.key`，有时直接返回裸 `key`，
+    /// 这里统一判定两种形式都视为未解析，避免 UI 把 key 原样显示出来。
+    /// </summary>
+    private static bool HasResolvedLocalization(string table, string key, string localized)
+    {
+        if (string.IsNullOrWhiteSpace(localized))
+        {
+            return false;
+        }
+
+        return !string.Equals(localized, $"{table}.{key}", StringComparison.Ordinal)
+            && !string.Equals(localized, key, StringComparison.Ordinal);
     }
 
     private static string SanitizeCardDescription(string description)

@@ -14,7 +14,8 @@ using MegaCrit.Sts2.Core.Rewards;
 namespace EchoCore.Scripts.Rewards;
 
 /// <summary>
-/// 奖励界面中的声骸奖励。点击后把声骸实例放进 EchoCore 临时库存。
+/// 奖励界面中的声骸奖励。点击后把声骸实例放进 EchoCore 本局库存，
+/// 并通过持久化服务写入当前 Run 的自定义 modifier。
 /// </summary>
 public sealed class EchoReward : Reward
 {
@@ -89,7 +90,7 @@ public sealed class EchoReward : Reward
         {
             new LocString("monsters", _definition.DescriptionKey).GetFormattedText(),
             $"COST {_definition.Cost} | {_definition.Class}",
-            "点击后加入 EchoCore 临时库存。当前库存暂未持久化，后续阶段会接入保存与装备界面。",
+            "点击后加入 EchoCore 本局库存。库存、装备槽和调谐状态会随当前 Run 存档恢复。",
         };
 
         if (!string.IsNullOrWhiteSpace(_instance.SelectedSonataId) && EchoRegistry.TryGetSonata(_instance.SelectedSonataId, out var sonata))
@@ -120,7 +121,7 @@ public sealed class EchoReward : Reward
     private static string GetLocalizedTextOrFallback(string key)
     {
         var localized = new LocString("monsters", key).GetFormattedText();
-        if (!string.IsNullOrWhiteSpace(localized) && !string.Equals(localized, $"monsters.{key}", StringComparison.Ordinal))
+        if (HasResolvedLocalization("monsters", key, localized))
         {
             return localized;
         }
@@ -131,5 +132,20 @@ public sealed class EchoReward : Reward
             "ECHO_CORE_HIDDEN_LIGHT.name" => "隐世回光",
             _ => key,
         };
+    }
+
+    /// <summary>
+    /// 有些未命中的本地化会返回 `monsters.key`，有些直接返回裸 key，
+    /// 奖励界面与详情面板保持相同判定，避免把内部键名暴露给玩家。
+    /// </summary>
+    private static bool HasResolvedLocalization(string table, string key, string localized)
+    {
+        if (string.IsNullOrWhiteSpace(localized))
+        {
+            return false;
+        }
+
+        return !string.Equals(localized, $"{table}.{key}", StringComparison.Ordinal)
+            && !string.Equals(localized, key, StringComparison.Ordinal);
     }
 }

@@ -11,8 +11,10 @@ using MegaCrit.Sts2.Core.Models;
 namespace EchoCore.Scripts.Services;
 
 /// <summary>
-/// 声骸主动技 MVP：槽位 1 的主声骸在战斗中提供一个按钮，点击后生成绑定的主动技卡。
-/// 主动技卡由声骸定义固定绑定，不参与词条随机和调谐。
+/// 声骸主动技服务。
+/// 当前支持两类主动技：
+/// 1. TacticalCard：生成绑定卡牌到手牌
+/// 2. BuffSkill（当前借用 Morph 形态）：直接施加一个或多个 Buff
 /// </summary>
 public static class EchoActiveSkillService
 {
@@ -54,6 +56,11 @@ public static class EchoActiveSkillService
             return new ActiveSkillStatus(false, unavailableReason ?? "未装备主声骸", 0, null);
         }
 
+        if (definition == null)
+        {
+            return new ActiveSkillStatus(false, "主声骸定义缺失", 0, null);
+        }
+
         int remainingCooldown = GetRemainingCooldown(player);
         if (remainingCooldown > 0)
         {
@@ -65,7 +72,7 @@ public static class EchoActiveSkillService
             return new ActiveSkillStatus(false, "非可行动回合", remainingCooldown, definition);
         }
 
-        if (PileType.Hand.GetPile(player).Cards.Count >= MaxHandSize)
+        if (RequiresHandSpace(definition) && PileType.Hand.GetPile(player).Cards.Count >= MaxHandSize)
         {
             return new ActiveSkillStatus(false, "手牌已满", remainingCooldown, definition);
         }
@@ -87,8 +94,7 @@ public static class EchoActiveSkillService
         }
 
         if (!TryGetMainEchoSkill(player, out _, out var definition, out _)
-            || definition == null
-            || string.IsNullOrWhiteSpace(definition.SkillCardId))
+            || definition == null)
         {
             return false;
         }
@@ -103,18 +109,14 @@ public static class EchoActiveSkillService
                 return false;
             }
 
-            if (!EchoSkillCardRegistry.TryGetCanonicalCard(definition.SkillCardId, out CardModel? canonicalCard)
-                || canonicalCard == null)
+            bool activated = await TryActivateByForm(player, definition, combatState);
+            if (!activated)
             {
-                Log.Error($"[EchoCore] Echo skill card model not found. echo={definition.Id}, skillCardId={definition.SkillCardId}");
                 return false;
             }
 
-            var card = combatState.CreateCard(canonicalCard, player);
-            await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Hand, addedByPlayer: true);
-
             CooldownByPlayerNetId[player.NetId] = Math.Max(1, definition.SkillCooldownTurns);
-            Log.Info($"[EchoCore] Activated echo skill. player={player.NetId}, echo={definition.Id}, card={definition.SkillCardId}, cooldown={definition.SkillCooldownTurns}");
+            Log.Info($"[EchoCore] Activated echo skill. player={player.NetId}, echo={definition.Id}, formType={definition.FormType}, cooldown={definition.SkillCooldownTurns}");
             return true;
         }
         catch (Exception exception)
@@ -154,9 +156,9 @@ public static class EchoActiveSkillService
             return false;
         }
 
-        if (definition.FormType != EchoFormType.TacticalCard || string.IsNullOrWhiteSpace(definition.SkillCardId))
+        if (!HasUsableActiveSkill(definition))
         {
-            unavailableReason = "主声骸没有卡牌主动技";
+            unavailableReason = "主声骸没有可用主动技";
             return false;
         }
 
@@ -182,6 +184,56 @@ public static class EchoActiveSkillService
             && combatState.CurrentSide == CombatSide.Player
             && CombatManager.Instance.IsPartOfPlayerTurn(player)
             && !CombatManager.Instance.IsPlayerReadyToEndTurn(player);
+    }
+
+    private static bool RequiresHandSpace(EchoDefinition definition)
+    {
+        return definition.FormType == EchoFormType.TacticalCard;
+    }
+
+    private static bool HasUsableActiveSkill(EchoDefinition definition)
+    {
+        return definition.FormType switch
+        {
+            EchoFormType.TacticalCard => !string.IsNullOrWhiteSpace(definition.SkillCardId),
+            EchoFormType.Morph => !string.IsNullOrWhiteSpace(definition.BuffSkillId),
+            _ => false,
+        };
+    }
+
+    private static async Task<bool> TryActivateByForm(Player player, EchoDefinition definition, CombatState combatState)
+    {
+        switch (definition.FormType)
+        {
+            case EchoFormType.TacticalCard:
+                return await TryActivateCardSkill(player, definition, combatState);
+
+            case EchoFormType.Morph:
+                return await EchoBuffSkillService.TryActivate(player, definition);
+
+            default:
+                Log.Error($"[EchoCore] Unsupported echo active skill form. echo={definition.Id}, formType={definition.FormType}");
+                return false;
+        }
+    }
+
+    private static async Task<bool> TryActivateCardSkill(Player player, EchoDefinition definition, CombatState combatState)
+    {
+        if (string.IsNullOrWhiteSpace(definition.SkillCardId))
+        {
+            return false;
+        }
+
+        if (!EchoSkillCardRegistry.TryGetCanonicalCard(definition.SkillCardId, out CardModel? canonicalCard)
+            || canonicalCard == null)
+        {
+            Log.Error($"[EchoCore] Echo skill card model not found. echo={definition.Id}, skillCardId={definition.SkillCardId}");
+            return false;
+        }
+
+        var card = combatState.CreateCard(canonicalCard, player);
+        await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Hand, addedByPlayer: true);
+        return true;
     }
 
     public sealed record ActiveSkillStatus(
