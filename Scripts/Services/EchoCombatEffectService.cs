@@ -1,12 +1,7 @@
 using EchoCore.Scripts.Echoes;
 using EchoCore.Scripts.Registry;
 using EchoCore.Scripts.Sonata;
-using MegaCrit.Sts2.Core.Commands;
-using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
-using MegaCrit.Sts2.Core.Logging;
-using MegaCrit.Sts2.Core.Models.Powers;
-using MegaCrit.Sts2.Core.ValueProps;
 
 namespace EchoCore.Scripts.Services;
 
@@ -25,15 +20,31 @@ public static class EchoCombatEffectService
     {
         foreach (var instance in EchoInventory.GetEquipped(player))
         {
+            if (!EchoRegistry.TryGetEcho(instance.DefinitionId, out var definition))
+            {
+                continue;
+            }
+
+            if (EchoRegistry.TryGetEchoEffectHandler(definition.Id, out var echoHandler))
+            {
+                await echoHandler.OnCombatStart(player, instance, definition);
+            }
+
             foreach (var affix in instance.Affixes)
             {
-                await ApplyStartOfCombatAffix(player, instance, affix);
+                if (EchoRegistry.TryGetAffixEffectHandler(affix.AffixId, out var handler))
+                {
+                    await handler.OnCombatStart(player, instance, affix);
+                }
             }
         }
 
         foreach (var sonata in GetActiveSonataSummaries(player))
         {
-            await ApplyStartOfCombatSonata(player, sonata);
+            if (EchoRegistry.TryGetSonataEffectHandler(sonata.Definition.Id, out var handler))
+            {
+                await handler.OnCombatStart(player, sonata);
+            }
         }
     }
 
@@ -86,96 +97,5 @@ public static class EchoCombatEffectService
         }
 
         return summaries;
-    }
-
-    private static async Task ApplyStartOfCombatAffix(Player player, EchoInstance instance, Affixes.EchoAffixInstance affix)
-    {
-        switch (affix.AffixId)
-        {
-            case "echo_core:strength_start":
-                await PowerCmd.Apply<StrengthPower>(player.Creature, affix.Value, player.Creature, null);
-                LogAppliedAffix(instance, affix, "Strength");
-                return;
-
-            case "echo_core:dexterity_start":
-                await PowerCmd.Apply<DexterityPower>(player.Creature, affix.Value, player.Creature, null);
-                LogAppliedAffix(instance, affix, "Dexterity");
-                return;
-
-            case "echo_core:block_start":
-                await CreatureCmd.GainBlock(player.Creature, affix.Value, ValueProp.Unpowered, null);
-                LogAppliedAffix(instance, affix, "Block");
-                return;
-        }
-    }
-
-    private static async Task ApplyStartOfCombatSonata(Player player, ActiveSonataSummary sonata)
-    {
-        if (string.Equals(sonata.Definition.Id, VanillaEchoBootstrap.UniversalSonataId, StringComparison.OrdinalIgnoreCase))
-        {
-            await ApplyUniversalStartOfCombatSonata(player, sonata);
-            return;
-        }
-
-        if (string.Equals(sonata.Definition.Id, VanillaEchoBootstrap.HiddenLightSonataId, StringComparison.OrdinalIgnoreCase))
-        {
-            await ApplyHiddenLightStartOfCombatSonata(player, sonata);
-        }
-    }
-
-    private static async Task ApplyUniversalStartOfCombatSonata(Player player, ActiveSonataSummary sonata)
-    {
-        // MVP 先只实现基础残响的 2/3/5 件通用增益，确保合鸣件数在战斗内有真实收益。
-        foreach (var breakpoint in sonata.ActiveBreakpoints)
-        {
-            switch (breakpoint)
-            {
-                case 2:
-                    await CreatureCmd.GainBlock(player.Creature, 4m, ValueProp.Unpowered, null);
-                    break;
-
-                case 3:
-                    await PowerCmd.Apply<StrengthPower>(player.Creature, 1m, player.Creature, null);
-                    break;
-
-                case 5:
-                    await PowerCmd.Apply<DexterityPower>(player.Creature, 1m, player.Creature, null);
-                    break;
-            }
-
-            Log.Info($"[EchoCore] Applied sonata effect. sonata={sonata.Definition.Id}, equipped={sonata.EquippedCount}, breakpoint={breakpoint}");
-        }
-    }
-
-    private static async Task ApplyHiddenLightStartOfCombatSonata(Player player, ActiveSonataSummary sonata)
-    {
-        foreach (var breakpoint in sonata.ActiveBreakpoints)
-        {
-            switch (breakpoint)
-            {
-                case 2:
-                    await CreatureCmd.Heal(player.Creature, 1m);
-                    break;
-
-                case 3:
-                    await CreatureCmd.GainBlock(player.Creature, 3m, ValueProp.Unpowered, null);
-                    break;
-
-                case 5:
-                    await PowerCmd.Apply<DexterityPower>(player.Creature, 1m, player.Creature, null);
-                    break;
-            }
-
-            Log.Info($"[EchoCore] Applied sonata effect. sonata={sonata.Definition.Id}, equipped={sonata.EquippedCount}, breakpoint={breakpoint}");
-        }
-    }
-
-    private static void LogAppliedAffix(EchoInstance instance, Affixes.EchoAffixInstance affix, string effectType)
-    {
-        // 保留简洁日志，方便验证装备词条是否在开战时实际触发。
-        var displayName = EchoRegistry.TryGetEcho(instance.DefinitionId, out var definition)
-            ? definition.Id
-            : instance.DefinitionId;
-        Log.Info($"[EchoCore] Applied echo affix effect. echo={displayName}, affix={affix.AffixId}, tier={affix.Tier}, value={affix.Value}, effect={effectType}");
     }
 }

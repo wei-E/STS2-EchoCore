@@ -3,6 +3,7 @@ using EchoCore.Scripts.Affixes;
 using EchoCore.Scripts.Echoes;
 using EchoCore.Scripts.Registry;
 using EchoCore.Scripts.Services;
+using EchoCore.Scripts.UI;
 using Godot;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -88,14 +89,14 @@ public sealed class EchoReward : Reward
     {
         var lines = new List<string>
         {
-            new LocString("monsters", _definition.DescriptionKey).GetFormattedText(),
+            EchoUiTextService.GetEchoDescription(_definition),
             $"COST {_definition.Cost} | {_definition.Class}",
             "点击后加入 EchoCore 本局库存。库存、装备槽和调谐状态会随当前 Run 存档恢复。",
         };
 
         if (!string.IsNullOrWhiteSpace(_instance.SelectedSonataId) && EchoRegistry.TryGetSonata(_instance.SelectedSonataId, out var sonata))
         {
-            lines.Add($"合鸣：{GetLocalizedTextOrFallback(sonata.NameKey)}");
+            lines.Add($"合鸣：{EchoUiTextService.GetLocalizedTextOrFallback(sonata.NameKey)}");
         }
 
         foreach (var affix in _instance.Affixes)
@@ -111,41 +112,10 @@ public sealed class EchoReward : Reward
         var value = affix.Value.ToString("0.#", CultureInfo.InvariantCulture);
         if (EchoRegistry.TryGetAffix(affix.AffixId, out var definition))
         {
-            var name = GetLocalizedTextOrFallback(definition.NameKey);
+            var name = EchoUiTextService.GetLocalizedTextOrFallback(definition.NameKey);
             return $"{name} +{value}（档位 {affix.Tier} / {affix.TierRarity}）";
         }
 
         return $"{affix.AffixId} +{value}（档位 {affix.Tier} / {affix.TierRarity}）";
-    }
-
-    private static string GetLocalizedTextOrFallback(string key)
-    {
-        var localized = new LocString("monsters", key).GetFormattedText();
-        if (HasResolvedLocalization("monsters", key, localized))
-        {
-            return localized;
-        }
-
-        return key switch
-        {
-            "ECHO_CORE_UNIVERSAL_RESONANCE.name" => "基础残响",
-            "ECHO_CORE_HIDDEN_LIGHT.name" => "隐世回光",
-            _ => key,
-        };
-    }
-
-    /// <summary>
-    /// 有些未命中的本地化会返回 `monsters.key`，有些直接返回裸 key，
-    /// 奖励界面与详情面板保持相同判定，避免把内部键名暴露给玩家。
-    /// </summary>
-    private static bool HasResolvedLocalization(string table, string key, string localized)
-    {
-        if (string.IsNullOrWhiteSpace(localized))
-        {
-            return false;
-        }
-
-        return !string.Equals(localized, $"{table}.{key}", StringComparison.Ordinal)
-            && !string.Equals(localized, key, StringComparison.Ordinal);
     }
 }

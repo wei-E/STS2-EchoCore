@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using EchoCore.Scripts.Echoes;
 using EchoCore.Scripts.Registry;
 using EchoCore.Scripts.Services;
@@ -6,7 +5,6 @@ using Godot;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Players;
-using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Runs;
 
@@ -548,7 +546,7 @@ public sealed partial class EchoInventoryOverlay : Control
         _activeSkillButton.Disabled = !status.CanUse;
         _activeSkillButton.TooltipText = status.Definition == null
             ? status.Reason
-            : $"{GetLocalizedTextOrFallback(status.Definition.NameKey)}：{status.Reason}";
+            : $"{EchoUiTextService.GetLocalizedTextOrFallback(status.Definition.NameKey)}：{status.Reason}";
     }
 
     private void Refresh()
@@ -608,7 +606,7 @@ public sealed partial class EchoInventoryOverlay : Control
             var instance = EchoInventory.FindByInstanceId(player, slots[i]);
             button.TooltipText = instance == null
                 ? $"槽位 {i + 1}（空）"
-                : $"槽位 {i + 1}：{GetEchoDisplayName(instance)}";
+                : $"槽位 {i + 1}：{EchoUiTextService.GetEchoDisplayName(instance)}";
 
             ApplySlotVisual(button, instance, i == 0, instance?.InstanceId == _selectedInstanceId);
         }
@@ -642,7 +640,7 @@ public sealed partial class EchoInventoryOverlay : Control
             FocusMode = FocusModeEnum.None,
             CustomMinimumSize = new Vector2(136f, 136f),
             Text = string.Empty,
-            TooltipText = $"{GetEchoDisplayName(instance)}\n{GetAffixSummary(instance)}",
+            TooltipText = $"{EchoUiTextService.GetEchoDisplayName(instance)}\n{EchoUiTextService.GetAffixSummary(instance)}",
         };
         button.Pressed += () =>
         {
@@ -742,17 +740,17 @@ public sealed partial class EchoInventoryOverlay : Control
         }
 
         var definition = GetDefinitionOrNull(instance);
-        _detailTitleLabel.Text = definition == null ? instance.DefinitionId : GetLocalizedTextOrFallback(definition.NameKey);
+        _detailTitleLabel.Text = definition == null ? instance.DefinitionId : EchoUiTextService.GetEchoTitle(definition);
         _detailMetaLabel.Text = $"COST {definition?.Cost ?? 0}";
         _detailClassLabel.Text = GetClassDisplayText(definition?.Class);
         _detailDescriptionLabel.Text = definition == null
             ? "定义缺失。"
-            : GetEchoDescription(definition, instance);
+            : EchoUiTextService.GetEchoDescription(definition);
         _detailSkillLabel.Text = definition == null
             ? "未找到主动技定义。"
-            : GetSkillSummary(definition);
-        _detailAffixLabel.Text = GetAffixDetailSummary(instance);
-        _detailSonataLabel.Text = GetSonataDetailSummary(player, instance);
+            : EchoUiTextService.GetSkillSummary(definition);
+        _detailAffixLabel.Text = EchoUiTextService.GetAffixDetailSummary(instance);
+        _detailSonataLabel.Text = EchoUiTextService.GetSonataDetailSummary(player, instance);
         _unequipButton.Disabled = !EchoInventory.IsEquipped(player, instance);
         _tuneButton.Disabled = !EchoTuningService.CanTune(player, instance);
         _tuneButton.Text = EchoTuningService.IsTuningModeActive(player)
@@ -1029,209 +1027,7 @@ public sealed partial class EchoInventoryOverlay : Control
     private static string GetInventoryCardName(EchoInstance instance)
     {
         var definition = GetDefinitionOrNull(instance);
-        return definition == null ? instance.DefinitionId : GetLocalizedTextOrFallback(definition.NameKey);
-    }
-
-    private static string GetEchoDisplayName(EchoInstance instance)
-    {
-        var definition = GetDefinitionOrNull(instance);
-        if (definition == null)
-        {
-            return instance.DefinitionId;
-        }
-
-        var shortId = instance.InstanceId.Length > 8 ? instance.InstanceId[^8..] : instance.InstanceId;
-        var localizedName = GetLocalizedTextOrFallback(definition.NameKey);
-        return $"{localizedName}  Lv.{instance.Level}  #{shortId}";
-    }
-
-    private static string GetEchoDescription(EchoDefinition definition, EchoInstance instance)
-    {
-        string description = GetLocStringWithFallback("monsters", definition.DescriptionKey, "该声骸暂未提供详细描述。");
-        return description;
-    }
-
-    private static string GetSkillSummary(EchoDefinition definition)
-    {
-        if (definition.FormType == EchoFormType.TacticalCard && !string.IsNullOrWhiteSpace(definition.SkillCardId))
-        {
-            string key = definition.SkillCardId!;
-            string skillName = GetLocStringOrEmpty("cards", $"{key}.title");
-            if (string.IsNullOrWhiteSpace(skillName))
-            {
-                skillName = GetLocStringOrEmpty("cards", $"ECHOCORE-{key}.title");
-            }
-
-            string rawDescription = GetLocStringOrEmpty("cards", $"{key}.description");
-            if (string.IsNullOrWhiteSpace(rawDescription))
-            {
-                rawDescription = GetLocStringOrEmpty("cards", $"ECHOCORE-{key}.description");
-            }
-
-            if (string.IsNullOrWhiteSpace(rawDescription))
-            {
-                rawDescription = "该主动技描述暂未配置。";
-            }
-
-            string summary = SanitizeCardDescription(rawDescription);
-            if (string.IsNullOrWhiteSpace(skillName))
-            {
-                skillName = "未命名主动技";
-            }
-
-            return $"{skillName}\n{summary}\n冷却回合：{definition.SkillCooldownTurns}";
-        }
-
-        if (definition.FormType == EchoFormType.Morph && !string.IsNullOrWhiteSpace(definition.BuffSkillId))
-        {
-            if (EchoRegistry.TryGetBuffSkill(definition.BuffSkillId, out var buffSkill))
-            {
-                string skillName = GetLocStringWithFallback("monsters", buffSkill.NameKey, "未命名主动技");
-                string description = GetLocStringWithFallback("monsters", buffSkill.DescriptionKey, "该主动技描述暂未配置。");
-                return $"{skillName}\n{description}\n冷却回合：{definition.SkillCooldownTurns}";
-            }
-        }
-
-        return "当前版本未实现该形态的战斗主动技。";
-    }
-
-    private static string GetAffixSummary(EchoInstance instance)
-    {
-        if (instance.Affixes.Count == 0)
-        {
-            return "词条：无";
-        }
-
-        var parts = instance.Affixes.Select(affix =>
-        {
-            var name = EchoRegistry.TryGetAffix(affix.AffixId, out var definition)
-                ? GetLocalizedTextOrFallback(definition.NameKey)
-                : affix.AffixId;
-            return $"{name} +{affix.Value:0.#}（档位{affix.Tier}）";
-        });
-
-        return "词条：" + string.Join(" / ", parts);
-    }
-
-    private static string GetAffixDetailSummary(EchoInstance instance)
-    {
-        if (instance.Affixes.Count == 0)
-        {
-            return "当前没有词条。";
-        }
-
-        var lines = instance.Affixes.Select(affix =>
-        {
-            string name = EchoRegistry.TryGetAffix(affix.AffixId, out var definition)
-                ? GetLocalizedTextOrFallback(definition.NameKey)
-                : affix.AffixId;
-            return $"{name} +{affix.Value:0.#}";
-        });
-
-        return string.Join("\n", lines);
-    }
-
-    private static string GetSonataSummary(EchoInstance instance)
-    {
-        if (string.IsNullOrWhiteSpace(instance.SelectedSonataId))
-        {
-            return "合鸣：无";
-        }
-
-        if (EchoRegistry.TryGetSonata(instance.SelectedSonataId, out var sonata))
-        {
-            return $"合鸣：{GetLocalizedTextOrFallback(sonata.NameKey)}";
-        }
-
-        return $"合鸣：{instance.SelectedSonataId}";
-    }
-
-    private static string GetSonataDetailSummary(Player player, EchoInstance instance)
-    {
-        string currentSonata = GetSonataSummary(instance);
-        var summaries = EchoCombatEffectService.GetActiveSonataSummaries(player);
-        if (summaries.Count == 0)
-        {
-            return $"{currentSonata}\n当前已装备声骸还没有激活合鸣效果。";
-        }
-
-        var lines = summaries.Select(summary =>
-        {
-            string sonataName = GetLocalizedTextOrFallback(summary.Definition.NameKey);
-            string breakpointsText = string.Join(
-                " / ",
-                summary.ActiveBreakpoints.Select(value => GetSonataBreakpointDisplayText(summary, value)));
-            return $"{sonataName}：{summary.EquippedCount} 件，{breakpointsText}";
-        });
-
-        return $"{currentSonata}\n{string.Join("\n", lines)}";
-    }
-
-    private static string GetSonataBreakpointDisplayText(EchoCombatEffectService.ActiveSonataSummary summary, int requiredCount)
-    {
-        var breakpoint = summary.Definition.Breakpoints.FirstOrDefault(item => item.RequiredCount == requiredCount);
-        if (breakpoint == null)
-        {
-            return $"{requiredCount}件";
-        }
-
-        return GetLocalizedTextOrFallback(breakpoint.DescriptionKey);
-    }
-
-    private static string GetLocalizedTextOrFallback(string key)
-    {
-        var localized = new LocString("monsters", key).GetFormattedText();
-        if (HasResolvedLocalization("monsters", key, localized))
-        {
-            return localized;
-        }
-
-        return key switch
-        {
-            "ECHO_CORE_UNIVERSAL_RESONANCE.name" => "基础残响",
-            "ECHO_CORE_UNIVERSAL_RESONANCE.description" => "Echo Core MVP 使用的通用合鸣占位。",
-            "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_2" => "2件：开战获得4点格挡。",
-            "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_3" => "3件：额外获得1点力量。",
-            "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_5" => "5件：额外获得1点敏捷。",
-            "ECHO_CORE_HIDDEN_LIGHT.name" => "隐世回光",
-            "ECHO_CORE_HIDDEN_LIGHT.description" => "适合恢复与稳态收益的合鸣占位。",
-            "ECHO_CORE_HIDDEN_LIGHT.breakpoint_2" => "2件：开战回复1点生命。",
-            "ECHO_CORE_HIDDEN_LIGHT.breakpoint_3" => "3件：额外获得3点格挡。",
-            "ECHO_CORE_HIDDEN_LIGHT.breakpoint_5" => "5件：额外获得1点敏捷。",
-            _ => key,
-        };
-    }
-
-    private static string GetLocStringWithFallback(string table, string key, string fallback)
-    {
-        string localized = GetLocStringOrEmpty(table, key);
-        return string.IsNullOrWhiteSpace(localized) ? fallback : localized;
-    }
-
-    private static string GetLocStringOrEmpty(string table, string key)
-    {
-        var localized = new LocString(table, key).GetFormattedText();
-        return HasResolvedLocalization(table, key, localized) ? localized : string.Empty;
-    }
-
-    /// <summary>
-    /// STS2/Mod 本地化在未命中时有时返回 `table.key`，有时直接返回裸 `key`，
-    /// 这里统一判定两种形式都视为未解析，避免 UI 把 key 原样显示出来。
-    /// </summary>
-    private static bool HasResolvedLocalization(string table, string key, string localized)
-    {
-        if (string.IsNullOrWhiteSpace(localized))
-        {
-            return false;
-        }
-
-        return !string.Equals(localized, $"{table}.{key}", StringComparison.Ordinal)
-            && !string.Equals(localized, key, StringComparison.Ordinal);
-    }
-
-    private static string SanitizeCardDescription(string description)
-    {
-        return Regex.Replace(description, @"\{[^}]+\}", "X");
+        return definition == null ? instance.DefinitionId : EchoUiTextService.GetEchoTitle(definition);
     }
 
     private static string GetClassDisplayText(EchoClass? echoClass)

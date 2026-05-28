@@ -1,12 +1,10 @@
 using EchoCore.Scripts.Echoes;
+using EchoCore.Scripts.Effects.Skills;
 using EchoCore.Scripts.Registry;
-using EchoCore.Scripts.Cards;
 using MegaCrit.Sts2.Core.Combat;
-using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Logging;
-using MegaCrit.Sts2.Core.Models;
 
 namespace EchoCore.Scripts.Services;
 
@@ -188,52 +186,28 @@ public static class EchoActiveSkillService
 
     private static bool RequiresHandSpace(EchoDefinition definition)
     {
-        return definition.FormType == EchoFormType.TacticalCard;
+        return TryGetSkillHandler(definition, out var handler) && handler.RequiresHandSpace(definition);
     }
 
     private static bool HasUsableActiveSkill(EchoDefinition definition)
     {
-        return definition.FormType switch
-        {
-            EchoFormType.TacticalCard => !string.IsNullOrWhiteSpace(definition.SkillCardId),
-            EchoFormType.Morph => !string.IsNullOrWhiteSpace(definition.BuffSkillId),
-            _ => false,
-        };
+        return TryGetSkillHandler(definition, out var handler) && handler.HasUsableSkill(definition);
     }
 
     private static async Task<bool> TryActivateByForm(Player player, EchoDefinition definition, CombatState combatState)
     {
-        switch (definition.FormType)
+        if (!TryGetSkillHandler(definition, out var handler))
         {
-            case EchoFormType.TacticalCard:
-                return await TryActivateCardSkill(player, definition, combatState);
-
-            case EchoFormType.Morph:
-                return await EchoBuffSkillService.TryActivate(player, definition);
-
-            default:
-                Log.Error($"[EchoCore] Unsupported echo active skill form. echo={definition.Id}, formType={definition.FormType}");
-                return false;
+            Log.Error($"[EchoCore] Unsupported echo active skill form. echo={definition.Id}, formType={definition.FormType}");
+            return false;
         }
+
+        return await handler.TryActivate(player, definition, combatState);
     }
 
-    private static async Task<bool> TryActivateCardSkill(Player player, EchoDefinition definition, CombatState combatState)
+    private static bool TryGetSkillHandler(EchoDefinition definition, out IActiveSkillHandler handler)
     {
-        if (string.IsNullOrWhiteSpace(definition.SkillCardId))
-        {
-            return false;
-        }
-
-        if (!EchoSkillCardRegistry.TryGetCanonicalCard(definition.SkillCardId, out CardModel? canonicalCard)
-            || canonicalCard == null)
-        {
-            Log.Error($"[EchoCore] Echo skill card model not found. echo={definition.Id}, skillCardId={definition.SkillCardId}");
-            return false;
-        }
-
-        var card = combatState.CreateCard(canonicalCard, player);
-        await CardPileCmd.AddGeneratedCardToCombat(card, PileType.Hand, addedByPlayer: true);
-        return true;
+        return EchoRegistry.TryGetActiveSkillHandler(definition.FormType, out handler);
     }
 
     public sealed record ActiveSkillStatus(

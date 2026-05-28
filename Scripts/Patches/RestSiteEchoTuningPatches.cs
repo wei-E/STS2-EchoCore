@@ -1,3 +1,4 @@
+using EchoCore.Scripts.Content;
 using EchoCore.Scripts.RestSite;
 using EchoCore.Scripts.Services;
 using Godot;
@@ -44,7 +45,7 @@ public static class RestSiteEchoTuningButtonVisualPatch
         var icon = __instance.GetNodeOrNull<TextureRect>("%Icon");
         if (icon != null)
         {
-            icon.Texture = PreloadManager.Cache.GetCompressedTexture2D(Registry.VanillaEchoBootstrap.DefaultIconPath);
+            icon.Texture = PreloadManager.Cache.GetCompressedTexture2D(EchoContentConstants.DefaultIconPath);
         }
     }
 }

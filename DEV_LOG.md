@@ -410,3 +410,186 @@
   - `Persisted echo snapshot. chars=...`
   - `Restored echo persistence snapshot. players=...`
 - 再检查 `current_run.save` 中 `MODIFIER.ECHO_RUN_STATE_MODIFIER` 下是否出现 `props.strings -> EchoCoreSnapshotJson`
+
+## 2026-05-28 - 项目结构重构方案文档
+
+### Summary
+- 在不改动现有 EchoCore 功能代码的前提下，整理出一份后续开发使用的结构重构方案文档。
+- 重点约束内容定义、效果实现、运行时服务、UI 文本和本地化资源的职责边界。
+
+### Output
+- 新增文档：
+  - `E:\Code\sts2mod-dev\美术资源\声骸系统\EchoCore项目结构重构方案.md`
+
+### Key Decisions
+- `Echoes/` 目录不按 `Act1/Elite/Boss` 继续细分，直接按声骸名称命名文件。
+- 后续新增合鸣时，要求每个合鸣有独立的 effect handler 文件，不再把具体效果写死在 `EchoCombatEffectService`。
+- 后续新增特殊声骸时，允许为该声骸建立独立 `EchoEffectHandler`，但不强制每只声骸都建空文件。
+- UI 文本拼装后续应迁出 `EchoInventoryOverlay`，交给独立文本服务处理。
+- 本地化资源按职责拆分，而不是继续混写。
+
+### Verification
+- 本次仅产出文档，无代码变更，无 build/export。
+
+### Next
+- 后续真正开始重构时，按文档中的 `Phase A -> Phase B -> Phase C` 顺序推进。
+- 第一批推荐落地项：
+  1. 拆 `VanillaEchoBootstrap`
+  2. 抽 `ISonataEffectHandler`
+  3. 抽 `IAffixEffectHandler`
+  4. 抽 `EchoUiTextService`
+
+## 2026-05-28 - Phase A 结构重构落地
+
+### Summary
+- 开始按重构方案执行 Phase A，把内容定义、效果实现和 UI 文本拼装从原有集中式文件中拆开。
+- 本轮目标不是改玩法，而是把后续继续加声骸、合鸣和词条时最容易失控的几个入口先拆稳。
+
+### Changes
+- `Scripts/Content/`
+  - 新增 `EchoContentConstants.cs`，集中定义内容层常量、默认图标路径和默认主动技冷却规则。
+  - 新增 `EchoContentFactory.cs`，集中生成基础词条和原版怪物声骸定义，减少重复构造代码。
+  - 新增 `Echoes/*.cs`，把首批声骸定义拆成按名称命名的独立内容文件：
+    - `LeafSlimeSEchoContent.cs`
+    - `ShrinkerBeetleEchoContent.cs`
+    - `NibbitEchoContent.cs`
+    - `InkletEchoContent.cs`
+    - `ByrdonisEchoContent.cs`
+    - `CeremonialBeastEchoContent.cs`
+  - 新增 `Sonatas/*.cs`，把合鸣定义拆成：
+    - `UniversalResonanceSonataContent.cs`
+    - `HiddenLightSonataContent.cs`
+  - 新增 `Affixes/*.cs`，把基础词条定义拆成：
+    - `StartStrengthAffixContent.cs`
+    - `StartDexterityAffixContent.cs`
+    - `StartBlockAffixContent.cs`
+  - 新增 `Skills/InkletSlipperyBuffSkillContent.cs`，把 Buff 型主动技定义从集中注册入口中拆出。
+- `Scripts/Registry/`
+  - 新增 `EchoContentBootstrap.cs` 作为新的统一注册入口，负责调用内容定义和效果 handler 注册。
+  - 删除 `VanillaEchoBootstrap.cs`，不再让单个文件同时承担声骸、合鸣、词条和主动技的全部注册职责。
+  - `EchoRegistry.cs` 新增：
+    - `AffixEffectHandlersById`
+    - `SonataEffectHandlersById`
+    - `RegisterAffixEffectHandler(...)`
+    - `RegisterSonataEffectHandler(...)`
+    - `TryGetAffixEffectHandler(...)`
+    - `TryGetSonataEffectHandler(...)`
+  - `Clear()` 现在会同步清空词条 / 合鸣效果 handler 的运行时注册表。
+- `Scripts/Effects/`
+  - 新增 `Affixes/IAffixEffectHandler.cs` 和 3 个基础词条 handler：
+    - `StartStrengthAffixEffectHandler.cs`
+    - `StartDexterityAffixEffectHandler.cs`
+    - `StartBlockAffixEffectHandler.cs`
+  - 新增 `Sonatas/ISonataEffectHandler.cs` 和 2 个合鸣 handler：
+    - `UniversalResonanceEffectHandler.cs`
+    - `HiddenLightEffectHandler.cs`
+  - 这些文件接收原来写死在总服务中的开战生效逻辑，后续新增内容时不再改总调度器。
+- `Scripts/Services/EchoCombatEffectService.cs`
+  - 改成纯分发器：
+    - 统计已装备词条
+    - 查表拿词条 handler
+    - 统计激活合鸣
+    - 查表拿合鸣 handler
+  - 删除原来硬编码的：
+    - `ApplyStartOfCombatAffix`
+    - `ApplyStartOfCombatSonata`
+    - `ApplyUniversalStartOfCombatSonata`
+    - `ApplyHiddenLightStartOfCombatSonata`
+- `Scripts/UI/`
+  - 新增 `EchoUiTextService.cs`，承接声骸标题、描述、主动技说明、词条说明、合鸣说明的文本拼装和本地化 fallback。
+  - `EchoInventoryOverlay.cs` 不再自己拼装这些文本，改为调用 `EchoUiTextService`。
+  - `EchoReward.cs` 的悬浮说明也改为复用同一套 UI 文本服务，避免两处各写一套回退逻辑。
+- `Scripts/Init/Entry.cs`
+  - 初始化入口改为调用 `EchoContentBootstrap.RegisterAll()`。
+- `Scripts/Patches/RestSiteEchoTuningPatches.cs`
+  - 调谐入口的默认图标路径改为读取 `EchoContentConstants.DefaultIconPath`，不再依赖已删除的旧 bootstrap。
+
+### Verification
+- Residual check：PASS
+  - 已确认运行时代码中不再引用 `VanillaEchoBootstrap`。
+  - 已确认合鸣和基础词条的开战生效逻辑不再写死在 `EchoCombatEffectService` 中。
+- Build：PASS
+  - `dotnet build EchoCore.csproj -c Debug -v minimal`
+  - `0 warning / 0 error`
+
+### Next
+- 进游戏做一轮最小回归，重点确认：
+  1. 声骸掉落与奖励文案仍正常
+  2. 装备面板文本仍正常
+  3. 开战词条和合鸣效果仍能生效
+- Phase B 再继续处理：
+  - 特殊声骸独立 effect handler
+  - 主动技统一 skill handler
+  - UI 文本与内容定义进一步解耦
+
+## 2026-05-28 - Phase B 结构重构落地（第一轮）
+
+### Summary
+- 开始落实 Phase B，把“特殊声骸扩展点”和“主动技统一 handler”从原有公共服务中拆出来。
+- 本轮仍以结构迁移为主，不改变当前已验证通过的战斗结果和 UI 结果。
+
+### Dependencies / Paths
+- BaseLib 运行时：
+  - `E:\Steam\steamapps\common\Slay the Spire 2\mods\BaseLib\BaseLib.dll`
+  - `E:\Steam\steamapps\common\Slay the Spire 2\mods\BaseLib\BaseLib.pck`
+- STS2 本地源码镜像：
+  - `E:\Code\sts2mod-dev\mods\sts2-source-code`
+- EchoCore 项目文件：
+  - `E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj`
+
+### Changes
+- `Scripts/Effects/Echoes/`
+  - 新增 `IEchoEffectHandler.cs`
+  - 约定只有存在“独立于词条 / 合鸣 / 主动技之外的特殊战斗规则”的声骸，才需要单独实现 handler。
+- `Scripts/Effects/Skills/`
+  - 新增 `IActiveSkillHandler.cs`
+  - 新增 `TacticalCardActiveSkillHandler.cs`
+  - 新增 `BuffSkillActiveSkillHandler.cs`
+  - 把原来分散在 `EchoActiveSkillService` 和 `EchoUiTextService` 中的主动技形态判断迁移到 handler 内部。
+- `Scripts/Registry/EchoRegistry.cs`
+  - 新增：
+    - `EchoEffectHandlersById`
+    - `ActiveSkillHandlersByFormType`
+    - `RegisterEchoEffectHandler(...)`
+    - `TryGetEchoEffectHandler(...)`
+    - `RegisterActiveSkillHandler(...)`
+    - `TryGetActiveSkillHandler(...)`
+  - `Clear()` 会同步清空这两组新注册表。
+- `Scripts/Registry/EchoContentBootstrap.cs`
+  - 新增 `RegisterEchoEffectHandlers()` 入口，先把特殊声骸 handler 的注册位置预留出来。
+  - 注册统一主动技 handler：
+    - `TacticalCardActiveSkillHandler`
+    - `BuffSkillActiveSkillHandler`
+- `Scripts/Services/EchoActiveSkillService.cs`
+  - 不再自己 `switch (FormType)` 执行主动技。
+  - 改为通过 `EchoRegistry.TryGetActiveSkillHandler(...)`：
+    - 判断主动技是否可用
+    - 判断是否占用手牌空间
+    - 执行主动技
+- `Scripts/UI/EchoUiTextService.cs`
+  - 不再自己分 `TacticalCard / Morph` 拼主动技描述。
+  - 改为调用 `IActiveSkillHandler.GetSkillSummary(...)`。
+- `Scripts/Services/EchoCombatEffectService.cs`
+  - 在词条和合鸣分发前，增加特殊声骸 handler 的开战分发入口：
+    - `TryGetEchoEffectHandler(definition.Id, out handler)`
+  - 当前首批声骸尚未注册独立 handler，所以本轮只是把框架搭好，不改变战斗结果。
+
+### Verification
+- Dependency check：PASS
+  - 已确认 BaseLib DLL/PCK、STS2 源码镜像和 `EchoCore.csproj` 路径存在。
+- Residual check：PASS
+  - 主动技形态分支已收口到 `Scripts/Effects/Skills/*.cs`
+  - `EchoActiveSkillService` 与 `EchoUiTextService` 不再直接写死 `TacticalCard / Morph` 逻辑
+- Build：PASS
+  - `dotnet build EchoCore.csproj -c Debug -v minimal`
+  - `0 warning / 0 error`
+- Runtime sync：PASS
+  - 构建后已自动同步最新 `EchoCore.dll` 到游戏目录。
+
+### Known Issues
+- `RegisterEchoEffectHandlers()` 当前仍为空，说明 Phase B 的“特殊声骸独立 handler”目前只完成了接入框架，尚未迁入首个真实样例。
+- 主动技本地化 fallback 仍在各 handler 内部保留了少量重复判断，后续可以再收敛成共享 helper。
+
+### Next
+- 选一只最合适的样例声骸，真正接入首个 `IEchoEffectHandler`，验证特殊声骸规则不必再落到公共服务里。
+- 继续整理主动技内容层，把卡牌型 / Buff 型主动技定义也进一步从内容和执行层分开。
