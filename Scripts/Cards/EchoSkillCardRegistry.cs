@@ -13,6 +13,7 @@ public static class EchoSkillCardRegistry
         [GetCardEntry<EchoCoreCardLeafSlimeS>()] = typeof(EchoCoreCardLeafSlimeS),
         [GetCardEntry<EchoCoreCardShrinkerBeetle>()] = typeof(EchoCoreCardShrinkerBeetle),
         [GetCardEntry<EchoCoreCardNibbit>()] = typeof(EchoCoreCardNibbit),
+        [GetCardEntry<EchoCoreCardChomper>()] = typeof(EchoCoreCardChomper),
         [GetCardEntry<EchoCoreCardByrdonis>()] = typeof(EchoCoreCardByrdonis),
         [GetCardEntry<EchoCoreCardCeremonialBeast>()] = typeof(EchoCoreCardCeremonialBeast),
     };

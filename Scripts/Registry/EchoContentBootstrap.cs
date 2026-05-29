@@ -3,6 +3,7 @@ using EchoCore.Scripts.Content.Echoes;
 using EchoCore.Scripts.Content.Skills;
 using EchoCore.Scripts.Content.Sonatas;
 using EchoCore.Scripts.Effects.Affixes;
+using EchoCore.Scripts.Effects.Echoes;
 using EchoCore.Scripts.Effects.Skills;
 using EchoCore.Scripts.Effects.Sonatas;
 
@@ -48,6 +49,7 @@ public static class EchoContentBootstrap
         EchoRegistry.RegisterEcho(ShrinkerBeetleEchoContent.Create());
         EchoRegistry.RegisterEcho(NibbitEchoContent.Create());
         EchoRegistry.RegisterEcho(InkletEchoContent.Create());
+        EchoRegistry.RegisterEcho(ChomperEchoContent.Create());
         EchoRegistry.RegisterEcho(ByrdonisEchoContent.Create());
         EchoRegistry.RegisterEcho(CeremonialBeastEchoContent.Create());
     }
@@ -67,7 +69,6 @@ public static class EchoContentBootstrap
 
     private static void RegisterEchoEffectHandlers()
     {
-        // Phase B 先把特殊声骸 handler 的注册入口稳定下来。
-        // 当前首批声骸仍主要依赖词条、合鸣和主动技，本轮暂未新增额外的独立开战规则。
+        EchoRegistry.RegisterEchoEffectHandler(new ChomperEchoEffectHandler());
     }
 }

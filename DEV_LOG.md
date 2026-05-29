@@ -593,3 +593,83 @@
 ### Next
 - 选一只最合适的样例声骸，真正接入首个 `IEchoEffectHandler`，验证特殊声骸规则不必再落到公共服务里。
 - 继续整理主动技内容层，把卡牌型 / Buff 型主动技定义也进一步从内容和执行层分开。
+
+## 2026-05-28 - Chomper 独立规则声骸样例
+
+### Summary
+- 基于 Phase B 刚搭好的 `IEchoEffectHandler` 框架，接入第一只真正使用独立规则的声骸：`Chomper`。
+- 本轮目标是验证“某只声骸的固有被动不再写进公共服务，而是独立落文件并由统一分发器调用”。
+
+### Changes
+- `Scripts/Content/Echoes/ChomperEchoContent.cs`
+  - 新增 `Chomper` 声骸定义。
+  - 来源怪物：`CHOMPER`
+  - COST：`1`
+  - 形态：卡牌型主动技
+- `Scripts/Effects/Echoes/ChomperEchoEffectHandler.cs`
+  - 新增 `Chomper` 独立规则 handler。
+  - 固有规则：战斗开始时获得 `1` 层 `Artifact`
+  - 该效果不走随机词条，也不属于合鸣，而是 `Chomper` 自带的固定被动。
+- `Scripts/Cards/EchoCoreCardChomper.cs`
+  - 新增 `Chomper` 主动技卡。
+  - 效果：获得 `1` 层 `Artifact`，并向弃牌堆加入 `1` 张 `Dazed`
+  - 目的是保留原怪“硬壳 + Screech 副作用”的身份感
+- `Scripts/Cards/EchoSkillCardRegistry.cs`
+  - 注册 `EchoCoreCardChomper`
+- `Scripts/Registry/EchoContentBootstrap.cs`
+  - 注册 `ChomperEchoContent`
+  - 在 `RegisterEchoEffectHandlers()` 中注册 `ChomperEchoEffectHandler`
+- 本地化：
+  - `EchoCore/localization/zhs/monsters.json`
+  - `EchoCore/localization/eng/monsters.json`
+  - `EchoCore/localization/zhs/cards.json`
+  - `EchoCore/localization/eng/cards.json`
+  - 新增 `Chomper` 声骸名、描述、主动技卡名与描述
+
+### Verification
+- Build：PASS
+  - `dotnet build EchoCore.csproj -c Debug -v minimal`
+  - `0 warning / 0 error`
+- Export：PASS
+  - `MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+  - `EchoCore.dll` 已由 build 自动同步
+
+### Notes
+- 这次 `Chomper` 是首个真正依赖 `IEchoEffectHandler` 的样例，说明框架已经可以承载“声骸固有被动”而不污染公共调度器。
+- 当前独立规则只接到了 `OnCombatStart`，后续如果做“回合开始 / 回合结束 / 受伤后”类专属规则，还要继续扩 handler 生命周期接口。
+
+### Next
+- 进游戏验证 `Chomper`：
+  1. 击败 `Chomper` 后是否掉落对应声骸
+  2. 装备后开战是否固定获得 `Artifact 1`
+  3. 战斗中点击主动技是否获得 `Artifact 1` 并向弃牌堆加入 `1` 张 `Dazed`
+- 如果验证通过，可以继续做第二只独立规则声骸，例如 `Tunneler`。
+
+## 2026-05-29 - Chomper 官方中文名修正
+
+### Summary
+- 校对原版中文本地化后，确认 `CHOMPER.name` 的官方译名是 `啃咬机`，不是此前 EchoCore 中写的 `啃噬花`。
+- 本轮仅修正 EchoCore 里的中文显示文本，不改代码逻辑。
+
+### Source
+- 原版本地化资源：
+  - `E:\Code\sts2mod-dev\mods\Slay the Spire 2-godot-resource\localization\zhs\monsters.json`
+  - 对应条目：`"CHOMPER.name": "啃咬机"`
+
+### Changes
+- `EchoCore/localization/zhs/monsters.json`
+  - `ECHO_CORE_ECHO_CHOMPER.name`：
+    - `啃噬花声骸` -> `啃咬机声骸`
+  - `ECHO_CORE_ECHO_CHOMPER.description`：
+    - `以啃噬花为原型...` -> `以啃咬机为原型...`
+
+### Verification
+- Export：PASS
+  - `MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏确认 `Chomper` 声骸在奖励界面、库存列表和详情面板中都显示为 `啃咬机声骸`。

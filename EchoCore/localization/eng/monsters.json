@@ -7,6 +7,8 @@
   "ECHO_CORE_ECHO_NIBBIT.description": "An echo patterned after Nibbit.",
   "ECHO_CORE_ECHO_INKLET.name": "Inklet Echo",
   "ECHO_CORE_ECHO_INKLET.description": "An echo patterned after Inklet. Its active skill applies a monster-flavored buff instead of generating a card.",
+  "ECHO_CORE_ECHO_CHOMPER.name": "Chomper Echo",
+  "ECHO_CORE_ECHO_CHOMPER.description": "An echo patterned after Chomper. Innate rule: gain 1 Artifact at the start of combat.",
   "ECHO_CORE_ECHO_BYRDONIS.name": "Byrdonis Echo",
   "ECHO_CORE_ECHO_BYRDONIS.description": "An echo patterned after Byrdonis.",
   "ECHO_CORE_ECHO_CEREMONIAL_BEAST.name": "Ceremonial Beast Echo",
