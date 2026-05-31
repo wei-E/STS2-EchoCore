@@ -8,5 +8,21 @@
   "ECHO_CORE_ECHO_BYRDONIS.name": "多尼斯异鸟声骸",
   "ECHO_CORE_ECHO_BYRDONIS.description": "以多尼斯异鸟为原型的声骸。",
   "ECHO_CORE_ECHO_CEREMONIAL_BEAST.name": "仪式兽声骸",
-  "ECHO_CORE_ECHO_CEREMONIAL_BEAST.description": "以仪式兽为原型的声骸。"
+  "ECHO_CORE_ECHO_CEREMONIAL_BEAST.description": "以仪式兽为原型的声骸。",
+  "ECHO_CORE_ECHO_AXEBOT.name": "Axebot Echo",
+  "ECHO_CORE_ECHO_AXEBOT.description": "An echo based on Axebot.",
+  "ECHO_CORE_ECHO_BOWLBUG_SILK.name": "Bowlbug Silk Echo",
+  "ECHO_CORE_ECHO_BOWLBUG_SILK.description": "An echo based on Bowlbug Silk.",
+  "ECHO_CORE_ECHO_CALCIFIED_CULTIST.name": "Calcified Cultist Echo",
+  "ECHO_CORE_ECHO_CALCIFIED_CULTIST.description": "An echo based on Calcified Cultist.",
+  "ECHO_CORE_ECHO_FLAIL_KNIGHT.name": "Flail Knight Echo",
+  "ECHO_CORE_ECHO_FLAIL_KNIGHT.description": "An echo based on Flail Knight.",
+  "ECHO_CORE_ECHO_FLYCONID.name": "Flyconid Echo",
+  "ECHO_CORE_ECHO_FLYCONID.description": "An echo based on Flyconid.",
+  "ECHO_CORE_ECHO_FOSSIL_STALKER.name": "Fossil Stalker Echo",
+  "ECHO_CORE_ECHO_FOSSIL_STALKER.description": "An echo based on Fossil Stalker.",
+  "ECHO_CORE_ECHO_FROG_KNIGHT.name": "Frog Knight Echo",
+  "ECHO_CORE_ECHO_FROG_KNIGHT.description": "An echo based on Frog Knight.",
+  "ECHO_CORE_ECHO_GLOBE_HEAD.name": "Globe Head Echo",
+  "ECHO_CORE_ECHO_GLOBE_HEAD.description": "An echo based on Globe Head."
 }

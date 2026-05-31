@@ -52,6 +52,14 @@ public static class EchoContentBootstrap
         EchoRegistry.RegisterEcho(ChomperEchoContent.Create());
         EchoRegistry.RegisterEcho(ByrdonisEchoContent.Create());
         EchoRegistry.RegisterEcho(CeremonialBeastEchoContent.Create());
+        EchoRegistry.RegisterEcho(AxebotEchoContent.Create());
+        EchoRegistry.RegisterEcho(BowlbugSilkEchoContent.Create());
+        EchoRegistry.RegisterEcho(CalcifiedCultistEchoContent.Create());
+        EchoRegistry.RegisterEcho(FlailKnightEchoContent.Create());
+        EchoRegistry.RegisterEcho(FlyconidEchoContent.Create());
+        EchoRegistry.RegisterEcho(FossilStalkerEchoContent.Create());
+        EchoRegistry.RegisterEcho(FrogKnightEchoContent.Create());
+        EchoRegistry.RegisterEcho(GlobeHeadEchoContent.Create());
     }
 
     private static void RegisterEffectHandlers()

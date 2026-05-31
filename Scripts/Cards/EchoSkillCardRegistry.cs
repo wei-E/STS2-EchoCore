@@ -16,6 +16,14 @@ public static class EchoSkillCardRegistry
         [GetCardEntry<EchoCoreCardChomper>()] = typeof(EchoCoreCardChomper),
         [GetCardEntry<EchoCoreCardByrdonis>()] = typeof(EchoCoreCardByrdonis),
         [GetCardEntry<EchoCoreCardCeremonialBeast>()] = typeof(EchoCoreCardCeremonialBeast),
+        [GetCardEntry<EchoCoreCardAxebot>()] = typeof(EchoCoreCardAxebot),
+        [GetCardEntry<EchoCoreCardBowlbugSilk>()] = typeof(EchoCoreCardBowlbugSilk),
+        [GetCardEntry<EchoCoreCardCalcifiedCultist>()] = typeof(EchoCoreCardCalcifiedCultist),
+        [GetCardEntry<EchoCoreCardFlailKnight>()] = typeof(EchoCoreCardFlailKnight),
+        [GetCardEntry<EchoCoreCardFlyconid>()] = typeof(EchoCoreCardFlyconid),
+        [GetCardEntry<EchoCoreCardFossilStalker>()] = typeof(EchoCoreCardFossilStalker),
+        [GetCardEntry<EchoCoreCardFrogKnight>()] = typeof(EchoCoreCardFrogKnight),
+        [GetCardEntry<EchoCoreCardGlobeHead>()] = typeof(EchoCoreCardGlobeHead),
     };
 
     public static string GetCardEntry<TCard>() where TCard : CardModel
