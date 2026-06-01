@@ -1,0 +1,4 @@
+{
+  "ECHOCORE-enable-echo-developer-menu.title": "启用声骸开发者菜单",
+  "ECHOCORE-enable-echo-developer-menu.description": "开启后，局内非战斗场景会显示 EchoCore 的开发者菜单按钮，用于向库存添加自定义声骸。"
+}

@@ -13,6 +13,7 @@ public static class EchoContentConstants
 
     public const string UniversalSonataId = "echo_core:universal_resonance";
     public const string HiddenLightSonataId = "echo_core:hidden_light";
+    public const string EndlessEchoSonataId = "echo_core:endless_echo";
 
     public const string BasicAffixPoolId = "echo_core:basic";
 

@@ -8,9 +8,9 @@ using MegaCrit.Sts2.Core.ValueProps;
 namespace EchoCore.Scripts.Cards;
 
 /// <summary>
-/// 仪式兽主动技：Boss 声骸主动技，MVP 先做高伤害并给予易伤。
+/// 仪式兽主动技：对全体敌人造成伤害并施加易伤。
 /// </summary>
-public sealed class EchoCoreCardCeremonialBeast() : EchoCoreCard(2, CardType.Attack, TargetType.AnyEnemy, CardRarity.Rare)
+public sealed class EchoCoreCardCeremonialBeast() : EchoCoreCard(2, CardType.Attack, TargetType.AllEnemies, CardRarity.Rare)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
@@ -22,12 +22,12 @@ public sealed class EchoCoreCardCeremonialBeast() : EchoCoreCard(2, CardType.Att
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        if (cardPlay.Target == null)
+        if (CombatState == null)
         {
             return;
         }
 
-        await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target).Execute(choiceContext);
-        await PowerCmd.Apply<VulnerablePower>(cardPlay.Target, DynamicVars["Vulnerable"].BaseValue, Owner.Creature, this);
+        await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).TargetingAllOpponents(CombatState).Execute(choiceContext);
+        await PowerCmd.Apply<VulnerablePower>(CombatState.HittableEnemies, DynamicVars["Vulnerable"].BaseValue, Owner.Creature, this);
     }
 }

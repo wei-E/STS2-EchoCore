@@ -37,14 +37,14 @@
   "ECHO_CORE_AFFIX_DEXTERITY_START.description": "Gain Dexterity at the start of combat.",
   "ECHO_CORE_AFFIX_BLOCK_START.name": "Opening Block",
   "ECHO_CORE_AFFIX_BLOCK_START.description": "Gain Block at the start of combat.",
-  "ECHO_CORE_UNIVERSAL_RESONANCE.name": "Basic Reverberation",
-  "ECHO_CORE_UNIVERSAL_RESONANCE.description": "A generic sonata placeholder used by the Echo Core MVP.",
-  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_2": "2 pieces: gain 4 Block at the start of combat.",
-  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_3": "3 pieces: additionally gain 1 Strength.",
-  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_5": "5 pieces: additionally gain 1 Dexterity.",
   "ECHO_CORE_HIDDEN_LIGHT.name": "Hidden Light",
   "ECHO_CORE_HIDDEN_LIGHT.description": "A sonata placeholder focused on recovery and steady defense.",
   "ECHO_CORE_HIDDEN_LIGHT.breakpoint_2": "2 pieces: heal 1 HP at the start of combat.",
   "ECHO_CORE_HIDDEN_LIGHT.breakpoint_3": "3 pieces: additionally gain 3 Block.",
-  "ECHO_CORE_HIDDEN_LIGHT.breakpoint_5": "5 pieces: additionally gain 1 Dexterity."
+  "ECHO_CORE_HIDDEN_LIGHT.breakpoint_5": "5 pieces: when you would take fatal damage, recover 1 HP instead.",
+  "ECHO_CORE_ENDLESS_ECHO.name": "Endless Echo",
+  "ECHO_CORE_ENDLESS_ECHO.description": "A sonata set built around repeated attacks.",
+  "ECHO_CORE_ENDLESS_ECHO.breakpoint_2": "2 pieces: gain 1 Strength at the start of combat.",
+  "ECHO_CORE_ENDLESS_ECHO.breakpoint_3": "3 pieces: no additional effect.",
+  "ECHO_CORE_ENDLESS_ECHO.breakpoint_5": "5 pieces: when you play an Attack, if there are no other Attacks in your hand, play it again."
 }

@@ -4,18 +4,23 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Cards;
+using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
 
 namespace EchoCore.Scripts.Cards;
 
 /// <summary>
-/// 树叶史莱姆（小）主动技：打出一记轻击，并制造一张 Slimed 体现史莱姆来源。
+/// 树叶史莱姆（小）主动技：0 费单体伤害并附加虚弱，同时制造 1 张黏液。
 /// </summary>
-public sealed class EchoCoreCardLeafSlimeS() : EchoCoreCard(1, CardType.Attack, TargetType.AnyEnemy)
+public sealed class EchoCoreCardLeafSlimeS() : EchoCoreCard(0, CardType.Attack, TargetType.AnyEnemy)
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(5m, ValueProp.Move)];
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new DamageVar(7m, ValueProp.Move),
+        new DynamicVar("Weak", 1m),
+    ];
 
-    public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
@@ -25,6 +30,7 @@ public sealed class EchoCoreCardLeafSlimeS() : EchoCoreCard(1, CardType.Attack, 
         }
 
         await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target).Execute(choiceContext);
+        await PowerCmd.Apply<WeakPower>(cardPlay.Target, DynamicVars["Weak"].BaseValue, Owner.Creature, this);
         var combatState = CombatState;
         if (combatState == null)
         {

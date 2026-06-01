@@ -1,7 +1,12 @@
 {
-  "ECHO_CORE_UNIVERSAL_RESONANCE.name": "基础残响",
-  "ECHO_CORE_UNIVERSAL_RESONANCE.description": "Echo Core MVP 使用的通用合鸣占位。",
-  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_2": "2件：获得少量通用收益。",
-  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_3": "3件：获得中等通用收益。",
-  "ECHO_CORE_UNIVERSAL_RESONANCE.breakpoint_5": "5件：获得完整通用收益。"
+  "ECHO_CORE_HIDDEN_LIGHT.name": "隐世回光",
+  "ECHO_CORE_HIDDEN_LIGHT.description": "围绕恢复与保命展开的合鸣套装。",
+  "ECHO_CORE_HIDDEN_LIGHT.breakpoint_2": "2件：开始战斗时回复1点生命。",
+  "ECHO_CORE_HIDDEN_LIGHT.breakpoint_3": "3件：额外获得3点格挡。",
+  "ECHO_CORE_HIDDEN_LIGHT.breakpoint_5": "5件：当你受到致命伤害时，回复1点生命。",
+  "ECHO_CORE_ENDLESS_ECHO.name": "不绝余音",
+  "ECHO_CORE_ENDLESS_ECHO.description": "围绕连续攻击展开的合鸣套装。",
+  "ECHO_CORE_ENDLESS_ECHO.breakpoint_2": "2件：开始战斗时获得1点力量。",
+  "ECHO_CORE_ENDLESS_ECHO.breakpoint_3": "3件：暂无额外效果。",
+  "ECHO_CORE_ENDLESS_ECHO.breakpoint_5": "5件：当你打出攻击牌时，若手牌中没有其他攻击牌，则将其再打出一次。"
 }

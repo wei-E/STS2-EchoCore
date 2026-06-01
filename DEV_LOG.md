@@ -673,3 +673,135 @@
 
 ### Next
 - 进游戏确认 `Chomper` 声骸在奖励界面、库存列表和详情面板中都显示为 `啃咬机声骸`。
+
+## 2026-05-31 - 新增主动技卡牌本地化补齐
+
+### Summary
+- 修复新增一批 EchoCore 主动技卡牌在卡牌库中显示 `cards.ECHOCORE-...title/description` 原始 key 的问题。
+- 本轮只补本地化资源，不改卡牌逻辑。
+
+### Changes
+- `EchoCore/localization/zhs/cards.json`
+  - 补齐以下卡牌的中文名称与描述：
+    - `Axebot`
+    - `BowlbugSilk`
+    - `CalcifiedCultist`
+    - `FlailKnight`
+    - `Flyconid`
+    - `FossilStalker`
+    - `FrogKnight`
+    - `GlobeHead`
+  - 同时补齐 `ECHO_CORE_CARD_*` 与 `ECHOCORE-ECHO_CORE_CARD_*` 两套 key，兼容当前卡牌库实际请求的前缀格式。
+- `EchoCore/localization/eng/cards.json`
+  - 同步补齐英文名称与描述，避免英文环境下出现同类缺失。
+
+### Verification
+- JSON：PASS
+  - `ConvertFrom-Json` 校验 `zhs/cards.json` 与 `eng/cards.json` 通过。
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+  - `0 warning / 0 error`
+- Export：PASS
+  - `MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏打开卡牌库，确认新增 EchoCore 主动技卡牌不再显示本地化 key。
+
+## 2026-06-01 - 声骸开发者菜单 MVP（Phase 1）
+
+### Summary
+- 新增 EchoCore 自己的开发者菜单开关，接入 BaseLib 模组配置菜单。
+- 新增独立的声骸开发者按钮与浮窗，不再把调试逻辑塞进 `EchoInventoryOverlay`。
+- 第一版只支持选择 `声骸 + 合鸣 + 1 条词条 + 档位 + 等级` 并直接添加到当前玩家库存，不支持直接装备。
+
+### Changes
+- 配置：
+  - `Scripts/Config/EchoDeveloperConfig.cs`
+    - 新增 `EnableEchoDeveloperMenu` 配置项。
+  - `Scripts/Init/Entry.cs`
+    - 初始化时通过 `ModConfigRegistry.Register("EchoCore", new EchoDeveloperConfig())` 注册配置。
+- 服务层：
+  - `Scripts/Developer/EchoDeveloperGrantRequest.cs`
+    - 新增开发者菜单请求 DTO。
+  - `Scripts/Services/EchoDeveloperService.cs`
+    - 新增开发者菜单服务层。
+    - 负责读取注册表内容、校验声骸与合鸣归属、按指定词条档位创建实例，并写入 `EchoInventory`。
+    - 当前通过反射读取 `NRun._state` 来获取当前 `RunState`，这样不需要把调试菜单直接绑死在房间 UI 或战斗 UI 上。
+- UI：
+  - `Scripts/UI/EchoDeveloperMenu.cs`
+    - 新增独立开发者浮窗。
+    - MVP 提供 5 个输入项：
+      1. 声骸
+      2. 合鸣（仅显示该声骸允许的候选合鸣）
+      3. 词条
+      4. 档位
+      5. 等级
+    - 提供 `添加到背包` 按钮。
+  - `Scripts/UI/EchoDeveloperMenuHost.cs`
+    - 新增独立宿主节点。
+    - 负责在局内挂一个 `声骸开发` 按钮，并在非战斗场景下根据配置决定显隐。
+  - `Scripts/Patches/NRunEchoInventoryOverlayPatch.cs`
+    - 在现有 `NRun._Ready` Patch 中额外挂载 `EchoDeveloperMenuHost`。
+- 本地化：
+  - `EchoCore/localization/zhs/settings_ui.json`
+  - `EchoCore/localization/eng/settings_ui.json`
+    - 补配置菜单文案：`Enable Echo Developer Menu`
+
+### Verification
+- JSON：PASS
+  - `EchoCore/localization/zhs/settings_ui.json`
+  - `EchoCore/localization/eng/settings_ui.json`
+  - `ConvertFrom-Json` 校验通过。
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+  - `0 warning / 0 error`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+  - `EchoCore.dll` 已由 build 自动同步
+
+### Notes
+- 这一版刻意把“入口按钮 / 弹窗 UI / 实例创建逻辑”拆开：
+  - `Host` 只管入口显隐
+  - `Menu` 只管采集输入
+  - `Service` 只管业务校验和创建实例
+- 当前版本不支持多词条，也不支持开发菜单里直接装备；这两个都可以在现有结构上继续追加，不需要回头重写 UI 主体。
+- 当前版本为避免战斗和联机同步风险，只在非战斗场景显示按钮。
+
+### Next
+- 进游戏验证：
+  1. 在 BaseLib -> EchoCore 配置里打开 `启用声骸开发者菜单`
+  2. 进入局内非战斗场景，确认右上侧出现 `声骸开发` 按钮
+  3. 打开菜单，选择任意 `声骸 + 合鸣 + 词条 + 档位`
+  4. 点击 `添加到背包` 后，去声骸仓库确认实例已进入库存
+- 如果这版稳定，下一步可以补：
+  - 多词条输入
+  - 直接装备
+  - 预设模板
+
+## 2026-06-01 - 开发者菜单移除等级字段
+
+### Summary
+- 开发者菜单移除了 `等级` 输入。
+- 当前 EchoCore 没有任何等级成长逻辑，保留该输入只会制造误导，因此开发菜单新增实例统一固定为 `Level = 0`。
+
+### Changes
+- `Scripts/Developer/EchoDeveloperGrantRequest.cs`
+  - 删除 `Level` 字段。
+- `Scripts/Services/EchoDeveloperService.cs`
+  - 开发者菜单创建实例时固定写入 `Level: 0`。
+- `Scripts/UI/EchoDeveloperMenu.cs`
+  - 删除 `等级` 输入控件与预览文本中的等级显示。
+  - 面板高度同步缩小，避免空白区域过大。
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+  - `0 warning / 0 error`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`

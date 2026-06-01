@@ -2,26 +2,27 @@ using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
+using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.ValueProps;
 
 namespace EchoCore.Scripts.Cards;
 
 /// <summary>
-/// 小啃兽主动技：零费小额攻击，用于验证主动技卡进入手牌后的打出流程。
+/// 小啃兽主动技：获得格挡并提高力量。
 /// </summary>
-public sealed class EchoCoreCardNibbit() : EchoCoreCard(0, CardType.Attack, TargetType.AnyEnemy)
+public sealed class EchoCoreCardNibbit() : EchoCoreCard(1, CardType.Skill, TargetType.None)
 {
-    protected override IEnumerable<DynamicVar> CanonicalVars => [new DamageVar(4m, ValueProp.Move)];
+    protected override IEnumerable<DynamicVar> CanonicalVars =>
+    [
+        new BlockVar(10m, ValueProp.Move),
+        new DynamicVar("Strength", 2m),
+    ];
 
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
 
     protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        if (cardPlay.Target == null)
-        {
-            return;
-        }
-
-        await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target).Execute(choiceContext);
+        await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block, cardPlay);
+        await PowerCmd.Apply<StrengthPower>(Owner.Creature, DynamicVars["Strength"].BaseValue, Owner.Creature, this);
     }
 }

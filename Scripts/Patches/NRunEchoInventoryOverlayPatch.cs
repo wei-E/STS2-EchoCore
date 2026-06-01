@@ -16,6 +16,7 @@ public static class NRunEchoInventoryOverlayPatch
         try
         {
             EchoInventoryOverlay.AttachTo(__instance);
+            EchoDeveloperMenuHost.AttachTo(__instance);
             Log.Info("[EchoCore] Attached echo inventory overlay.");
         }
         catch (Exception ex)

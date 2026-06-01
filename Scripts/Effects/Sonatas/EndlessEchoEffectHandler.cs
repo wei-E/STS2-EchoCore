@@ -4,16 +4,16 @@ using EchoCore.Scripts.Services;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Logging;
-using MegaCrit.Sts2.Core.ValueProps;
+using MegaCrit.Sts2.Core.Models.Powers;
 
 namespace EchoCore.Scripts.Effects.Sonatas;
 
 /// <summary>
-/// 隐世回光合鸣效果实现。
+/// 不绝余音合鸣效果实现。
 /// </summary>
-public sealed class HiddenLightEffectHandler : ISonataEffectHandler
+public sealed class EndlessEchoEffectHandler : ISonataEffectHandler
 {
-    public string SonataId => EchoContentConstants.HiddenLightSonataId;
+    public string SonataId => EchoContentConstants.EndlessEchoSonataId;
 
     public async Task OnCombatStart(Player player, EchoCombatEffectService.ActiveSonataSummary summary)
     {
@@ -22,15 +22,11 @@ public sealed class HiddenLightEffectHandler : ISonataEffectHandler
             switch (breakpoint)
             {
                 case 2:
-                    await CreatureCmd.Heal(player.Creature, 1m);
-                    break;
-
-                case 3:
-                    await CreatureCmd.GainBlock(player.Creature, 3m, ValueProp.Unpowered, null);
+                    await PowerCmd.Apply<StrengthPower>(player.Creature, 1m, player.Creature, null);
                     break;
 
                 case 5:
-                    await PowerCmd.Apply<HiddenLightRevivePower>(player.Creature, 1m, player.Creature, null);
+                    await PowerCmd.Apply<EndlessEchoPower>(player.Creature, 1m, player.Creature, null);
                     break;
             }
 

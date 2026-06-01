@@ -39,8 +39,8 @@ public static class EchoContentBootstrap
 
     private static void RegisterSonataContent()
     {
-        EchoRegistry.RegisterSonata(UniversalResonanceSonataContent.Create());
         EchoRegistry.RegisterSonata(HiddenLightSonataContent.Create());
+        EchoRegistry.RegisterSonata(EndlessEchoSonataContent.Create());
     }
 
     private static void RegisterEchoContent()
@@ -71,8 +71,8 @@ public static class EchoContentBootstrap
         EchoRegistry.RegisterAffixEffectHandler(new StartDexterityAffixEffectHandler());
         EchoRegistry.RegisterAffixEffectHandler(new StartBlockAffixEffectHandler());
 
-        EchoRegistry.RegisterSonataEffectHandler(new UniversalResonanceEffectHandler());
         EchoRegistry.RegisterSonataEffectHandler(new HiddenLightEffectHandler());
+        EchoRegistry.RegisterSonataEffectHandler(new EndlessEchoEffectHandler());
     }
 
     private static void RegisterEchoEffectHandlers()

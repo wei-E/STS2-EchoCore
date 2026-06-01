@@ -20,6 +20,6 @@ public static class ByrdonisEchoContent
             echoClass: EchoClass.Elite,
             cost: 3,
             dropTags: ["act1", "elite", "byrdonis"],
-            sonataIds: [EchoContentConstants.UniversalSonataId, EchoContentConstants.HiddenLightSonataId]);
+            sonataIds: [EchoContentConstants.EndlessEchoSonataId, EchoContentConstants.HiddenLightSonataId]);
     }
 }

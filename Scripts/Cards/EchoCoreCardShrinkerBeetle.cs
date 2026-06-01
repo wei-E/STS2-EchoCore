@@ -3,19 +3,17 @@ using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models.Powers;
-using MegaCrit.Sts2.Core.ValueProps;
 
 namespace EchoCore.Scripts.Cards;
 
 /// <summary>
-/// 缩小甲虫主动技：MVP 先用伤害加虚弱表达“缩小/削弱”。
+/// 缩小甲虫主动技：对目标施加缩小，持续指定回合。
 /// </summary>
-public sealed class EchoCoreCardShrinkerBeetle() : EchoCoreCard(1, CardType.Attack, TargetType.AnyEnemy)
+public sealed class EchoCoreCardShrinkerBeetle() : EchoCoreCard(3, CardType.Skill, TargetType.AnyEnemy)
 {
     protected override IEnumerable<DynamicVar> CanonicalVars =>
     [
-        new DamageVar(6m, ValueProp.Move),
-        new DynamicVar("Weak", 1m),
+        new DynamicVar("Shrink", 2m),
     ];
 
     public override IEnumerable<CardKeyword> CanonicalKeywords => [CardKeyword.Exhaust];
@@ -27,7 +25,6 @@ public sealed class EchoCoreCardShrinkerBeetle() : EchoCoreCard(1, CardType.Atta
             return;
         }
 
-        await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target).Execute(choiceContext);
-        await PowerCmd.Apply<WeakPower>(cardPlay.Target, DynamicVars["Weak"].BaseValue, Owner.Creature, this);
+        await PowerCmd.Apply<ShrinkPower>(cardPlay.Target, DynamicVars["Shrink"].BaseValue, Owner.Creature, this);
     }
 }

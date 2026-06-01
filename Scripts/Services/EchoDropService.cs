@@ -12,11 +12,11 @@ using MegaCrit.Sts2.Core.Rooms;
 namespace EchoCore.Scripts.Services;
 
 /// <summary>
-/// 声骸掉落服务。MVP 先固定 100% 掉落，方便在奖励界面直接验证。
+/// 声骸掉落服务。当前统一 50% 掉落。
 /// </summary>
 public static class EchoDropService
 {
-    private const int DropRatePercent = 100;
+    private const int DropRatePercent = 50;
 
     public static bool TryAppendEchoReward(RewardsSet rewardsSet)
     {
@@ -69,7 +69,6 @@ public static class EchoDropService
 
     private static bool ShouldDrop(Rng rng)
     {
-        // 这里保留概率入口，后续把 100 改成配置值即可切回真实掉率。
         return DropRatePercent >= 100 || rng.NextInt(100) < DropRatePercent;
     }
 

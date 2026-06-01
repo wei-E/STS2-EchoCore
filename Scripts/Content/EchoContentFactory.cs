@@ -39,7 +39,8 @@ public static class EchoContentFactory
         int cost,
         IReadOnlyList<string> dropTags,
         EchoFormType formType = EchoFormType.TacticalCard,
-        IReadOnlyList<string>? sonataIds = null)
+        IReadOnlyList<string>? sonataIds = null,
+        int? skillCooldownTurnsOverride = null)
     {
         return new EchoDefinition(
             id,
@@ -50,10 +51,10 @@ public static class EchoContentFactory
             echoClass,
             cost,
             formType,
-            sonataIds ?? [EchoContentConstants.UniversalSonataId],
+            sonataIds ?? [EchoContentConstants.EndlessEchoSonataId],
             skillCardId,
             buffSkillId,
-            EchoContentConstants.GetDefaultSkillCooldownTurns(echoClass),
+            skillCooldownTurnsOverride ?? EchoContentConstants.GetDefaultSkillCooldownTurns(echoClass),
             dropTags,
             sourceMonsterId,
             [],

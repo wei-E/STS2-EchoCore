@@ -90,8 +90,7 @@ public sealed class EchoReward : Reward
         var lines = new List<string>
         {
             EchoUiTextService.GetEchoDescription(_definition),
-            $"COST {_definition.Cost} | {_definition.Class}",
-            "点击后加入 EchoCore 本局库存。库存、装备槽和调谐状态会随当前 Run 存档恢复。",
+            $"COST {_definition.Cost}",
         };
 
         if (!string.IsNullOrWhiteSpace(_instance.SelectedSonataId) && EchoRegistry.TryGetSonata(_instance.SelectedSonataId, out var sonata))
@@ -113,9 +112,9 @@ public sealed class EchoReward : Reward
         if (EchoRegistry.TryGetAffix(affix.AffixId, out var definition))
         {
             var name = EchoUiTextService.GetLocalizedTextOrFallback(definition.NameKey);
-            return $"{name} +{value}（档位 {affix.Tier} / {affix.TierRarity}）";
+            return $"{name} +{value}";
         }
 
-        return $"{affix.AffixId} +{value}（档位 {affix.Tier} / {affix.TierRarity}）";
+        return $"{affix.AffixId} +{value}";
     }
 }

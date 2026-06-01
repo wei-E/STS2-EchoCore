@@ -19,6 +19,7 @@ public static class ShrinkerBeetleEchoContent
             buffSkillId: null,
             echoClass: EchoClass.Common,
             cost: 1,
-            dropTags: ["act1", "beetle", "common"]);
+            dropTags: ["act1", "beetle", "common"],
+            skillCooldownTurnsOverride: 6);
     }
 }
