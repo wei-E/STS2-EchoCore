@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using EchoCore.Scripts.Cards;
 using EchoCore.Scripts.Echoes;
 using MegaCrit.Sts2.Core.Commands;
@@ -36,30 +35,24 @@ public sealed class TacticalCardActiveSkillHandler : IActiveSkillHandler
             return "当前版本未实现该形态的战斗主动技。";
         }
 
-        string key = definition.SkillCardId;
-        string skillName = GetLocStringOrEmpty("cards", $"{key}.title");
-        if (string.IsNullOrWhiteSpace(skillName))
+        if (EchoSkillCardRegistry.TryGetSkillSummaryLocKeys(definition.SkillCardId, out string titleKey, out string descriptionKey))
         {
-            skillName = GetLocStringOrEmpty("cards", $"ECHOCORE-{key}.title");
+            string skillName = GetLocStringOrEmpty("monsters", titleKey);
+            string description = GetLocStringOrEmpty("monsters", descriptionKey);
+            if (string.IsNullOrWhiteSpace(skillName))
+            {
+                skillName = "未命名主动技";
+            }
+
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                description = "该主动技描述暂未配置。";
+            }
+
+            return $"{skillName}\n{description}\n冷却回合：{definition.SkillCooldownTurns}";
         }
 
-        string rawDescription = GetLocStringOrEmpty("cards", $"{key}.description");
-        if (string.IsNullOrWhiteSpace(rawDescription))
-        {
-            rawDescription = GetLocStringOrEmpty("cards", $"ECHOCORE-{key}.description");
-        }
-
-        if (string.IsNullOrWhiteSpace(rawDescription))
-        {
-            rawDescription = "该主动技描述暂未配置。";
-        }
-
-        if (string.IsNullOrWhiteSpace(skillName))
-        {
-            skillName = "未命名主动技";
-        }
-
-        return $"{skillName}\n{SanitizeCardDescription(rawDescription)}\n冷却回合：{definition.SkillCooldownTurns}";
+        return $"未命名主动技\n该主动技描述暂未配置。\n冷却回合：{definition.SkillCooldownTurns}";
     }
 
     public async Task<bool> TryActivate(Player player, EchoDefinition definition, CombatState combatState)
@@ -83,8 +76,18 @@ public sealed class TacticalCardActiveSkillHandler : IActiveSkillHandler
 
     private static string GetLocStringOrEmpty(string table, string key)
     {
-        string localized = new LocString(table, key).GetFormattedText();
-        return HasResolvedLocalization(table, key, localized) ? localized : string.Empty;
+        try
+        {
+            string localized = new LocString(table, key).GetFormattedText();
+            return HasResolvedLocalization(table, key, localized) ? localized : string.Empty;
+        }
+        catch (Exception exception)
+        {
+            // 某些主动技文案沿用了卡牌 diff 占位符；在未提供动态变量时直接格式化会抛异常。
+            // 这里降级为空串，让上层摘要回退到占位文案，而不是把整个 UI 挂载链打断。
+            Log.Warn($"[EchoCore] Failed to resolve skill localization. table={table}, key={key}, error={exception.Message}");
+            return string.Empty;
+        }
     }
 
     private static bool HasResolvedLocalization(string table, string key, string localized)
@@ -98,8 +101,4 @@ public sealed class TacticalCardActiveSkillHandler : IActiveSkillHandler
             && !string.Equals(localized, key, StringComparison.Ordinal);
     }
 
-    private static string SanitizeCardDescription(string description)
-    {
-        return Regex.Replace(description, @"\{[^}]+\}", "X");
-    }
 }

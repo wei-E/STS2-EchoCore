@@ -16,12 +16,21 @@ public static class NRunEchoInventoryOverlayPatch
         try
         {
             EchoInventoryOverlay.AttachTo(__instance);
-            EchoDeveloperMenuHost.AttachTo(__instance);
             Log.Info("[EchoCore] Attached echo inventory overlay.");
         }
         catch (Exception ex)
         {
             Log.Error($"[EchoCore] Failed to attach echo inventory overlay: {ex}");
+        }
+
+        try
+        {
+            EchoDeveloperMenuHost.AttachTo(__instance);
+            Log.Info("[EchoCore] Attached echo developer menu host.");
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"[EchoCore] Failed to attach echo developer menu host: {ex}");
         }
     }
 }

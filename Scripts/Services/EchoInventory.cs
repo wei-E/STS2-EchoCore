@@ -10,6 +10,7 @@ namespace EchoCore.Scripts.Services;
 public static class EchoInventory
 {
     public const int MaxEquipSlots = 5;
+    public const int MaxTotalCost = 12;
 
     private static readonly Dictionary<ulong, List<EchoInstance>> EchoesByPlayerNetId = new();
     private static readonly Dictionary<ulong, string?[]> EquippedInstanceIdsByPlayerNetId = new();
@@ -50,15 +51,29 @@ public static class EchoInventory
 
     public static bool Equip(Player player, EchoInstance instance, int slotIndex)
     {
+        return TryEquip(player, instance, slotIndex, out _);
+    }
+
+    public static bool TryEquip(Player player, EchoInstance instance, int slotIndex, out string failureReason)
+    {
+        failureReason = string.Empty;
         EnsurePlayerRunBound(player);
         if (slotIndex < 0 || slotIndex >= MaxEquipSlots)
         {
+            failureReason = "装备槽位无效。";
             return false;
         }
 
         var inventory = GetAll(player);
         if (!inventory.Any(echo => echo.InstanceId == instance.InstanceId))
         {
+            failureReason = "该声骸不在当前库存中。";
+            return false;
+        }
+
+        if (!CanEquipWithoutExceedingCost(player, instance, slotIndex, out int projectedCost))
+        {
+            failureReason = $"装备后 COST 将达到 {projectedCost}/{MaxTotalCost}。";
             return false;
         }
 
@@ -124,6 +139,14 @@ public static class EchoInventory
         inventory[index] = updatedInstance;
         EchoPersistenceService.NotifyStateChanged(player);
         return true;
+    }
+
+    public static int GetEquippedCost(Player player)
+    {
+        EnsurePlayerRunBound(player);
+        return GetEquipped(player)
+            .Select(GetDefinitionCost)
+            .Sum();
     }
 
     internal static IReadOnlyList<PlayerInventorySnapshot> ExportSnapshots()
@@ -192,6 +215,37 @@ public static class EchoInventory
         }
 
         return result;
+    }
+
+    private static bool CanEquipWithoutExceedingCost(Player player, EchoInstance instance, int slotIndex, out int projectedCost)
+    {
+        var seenInstanceIds = new HashSet<string>(StringComparer.Ordinal);
+        string?[] slots = GetOrCreateEquipSlots(player);
+        projectedCost = 0;
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            string? equippedInstanceId = i == slotIndex ? instance.InstanceId : slots[i];
+            if (string.IsNullOrWhiteSpace(equippedInstanceId) || !seenInstanceIds.Add(equippedInstanceId))
+            {
+                continue;
+            }
+
+            EchoInstance? equippedInstance = FindByInstanceId(player, equippedInstanceId);
+            if (equippedInstance == null)
+            {
+                continue;
+            }
+
+            projectedCost += GetDefinitionCost(equippedInstance);
+        }
+
+        return projectedCost <= MaxTotalCost;
+    }
+
+    private static int GetDefinitionCost(EchoInstance instance)
+    {
+        return Registry.EchoRegistry.TryGetEcho(instance.DefinitionId, out var definition) ? definition.Cost : 0;
     }
 
     internal sealed record PlayerInventorySnapshot(

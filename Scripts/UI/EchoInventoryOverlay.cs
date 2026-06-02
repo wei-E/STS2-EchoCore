@@ -588,11 +588,8 @@ public sealed partial class EchoInventoryOverlay : Control
 
     private void RefreshSidebar(Player player)
     {
-        int currentCost = EchoInventory.GetEquipped(player)
-            .Select(GetDefinitionOrNull)
-            .Where(definition => definition != null)
-            .Sum(definition => definition!.Cost);
-        _costLabel.Text = $"{currentCost}/12";
+        int currentCost = EchoInventory.GetEquippedCost(player);
+        _costLabel.Text = $"{currentCost}/{EchoInventory.MaxTotalCost}";
 
         bool tuningActive = EchoTuningService.IsTuningModeActive(player);
         _selectionHintLabel.Text = tuningActive
@@ -775,9 +772,9 @@ public sealed partial class EchoInventoryOverlay : Control
             return;
         }
 
-        if (!EchoInventory.Equip(player, selected, slotIndex))
+        if (!EchoInventory.TryEquip(player, selected, slotIndex, out string failureReason))
         {
-            _feedbackMessage = $"无法装备到槽位 {slotIndex + 1}。";
+            _feedbackMessage = $"无法装备到槽位 {slotIndex + 1}。{failureReason}";
             Refresh();
             return;
         }

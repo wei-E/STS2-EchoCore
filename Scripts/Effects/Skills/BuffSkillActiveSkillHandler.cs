@@ -1,3 +1,4 @@
+using EchoCore.Scripts.Cards;
 using EchoCore.Scripts.Echoes;
 using EchoCore.Scripts.Registry;
 using EchoCore.Scripts.Services;
@@ -30,6 +31,13 @@ public sealed class BuffSkillActiveSkillHandler : IActiveSkillHandler
         if (string.IsNullOrWhiteSpace(definition.BuffSkillId))
         {
             return "当前版本未实现该形态的战斗主动技。";
+        }
+
+        if (EchoSkillCardRegistry.TryGetBuffSkillSummaryLocKeys(definition.BuffSkillId, out string titleKey, out string descriptionKey))
+        {
+            string skillName = GetLocStringWithFallback("monsters", titleKey, "未命名主动技");
+            string description = GetLocStringWithFallback("monsters", descriptionKey, "该主动技描述暂未配置。");
+            return $"{skillName}\n{description}\n冷却回合：{definition.SkillCooldownTurns}";
         }
 
         if (EchoRegistry.TryGetBuffSkill(definition.BuffSkillId, out var buffSkill))

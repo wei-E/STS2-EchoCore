@@ -26,6 +26,29 @@ public static class EchoSkillCardRegistry
         [GetCardEntry<EchoCoreCardGlobeHead>()] = typeof(EchoCoreCardGlobeHead),
     };
 
+    private static readonly Dictionary<string, (string TitleKey, string DescriptionKey)> SkillSummaryLocKeysByEntry = new(StringComparer.Ordinal)
+    {
+        [GetCardEntry<EchoCoreCardLeafSlimeS>()] = ("ECHO_CORE_SKILL_LEAF_SLIME_S.title", "ECHO_CORE_SKILL_LEAF_SLIME_S.description"),
+        [GetCardEntry<EchoCoreCardShrinkerBeetle>()] = ("ECHO_CORE_SKILL_SHRINKER_BEETLE.title", "ECHO_CORE_SKILL_SHRINKER_BEETLE.description"),
+        [GetCardEntry<EchoCoreCardNibbit>()] = ("ECHO_CORE_SKILL_NIBBIT.title", "ECHO_CORE_SKILL_NIBBIT.description"),
+        [GetCardEntry<EchoCoreCardChomper>()] = ("ECHO_CORE_SKILL_CHOMPER.title", "ECHO_CORE_SKILL_CHOMPER.description"),
+        [GetCardEntry<EchoCoreCardByrdonis>()] = ("ECHO_CORE_SKILL_BYRDONIS.title", "ECHO_CORE_SKILL_BYRDONIS.description"),
+        [GetCardEntry<EchoCoreCardCeremonialBeast>()] = ("ECHO_CORE_SKILL_CEREMONIAL_BEAST.title", "ECHO_CORE_SKILL_CEREMONIAL_BEAST.description"),
+        [GetCardEntry<EchoCoreCardAxebot>()] = ("ECHO_CORE_SKILL_AXEBOT.title", "ECHO_CORE_SKILL_AXEBOT.description"),
+        [GetCardEntry<EchoCoreCardBowlbugSilk>()] = ("ECHO_CORE_SKILL_BOWLBUG_SILK.title", "ECHO_CORE_SKILL_BOWLBUG_SILK.description"),
+        [GetCardEntry<EchoCoreCardCalcifiedCultist>()] = ("ECHO_CORE_SKILL_CALCIFIED_CULTIST.title", "ECHO_CORE_SKILL_CALCIFIED_CULTIST.description"),
+        [GetCardEntry<EchoCoreCardFlailKnight>()] = ("ECHO_CORE_SKILL_FLAIL_KNIGHT.title", "ECHO_CORE_SKILL_FLAIL_KNIGHT.description"),
+        [GetCardEntry<EchoCoreCardFlyconid>()] = ("ECHO_CORE_SKILL_FLYCONID.title", "ECHO_CORE_SKILL_FLYCONID.description"),
+        [GetCardEntry<EchoCoreCardFossilStalker>()] = ("ECHO_CORE_SKILL_FOSSIL_STALKER.title", "ECHO_CORE_SKILL_FOSSIL_STALKER.description"),
+        [GetCardEntry<EchoCoreCardFrogKnight>()] = ("ECHO_CORE_SKILL_FROG_KNIGHT.title", "ECHO_CORE_SKILL_FROG_KNIGHT.description"),
+        [GetCardEntry<EchoCoreCardGlobeHead>()] = ("ECHO_CORE_SKILL_GLOBE_HEAD.title", "ECHO_CORE_SKILL_GLOBE_HEAD.description"),
+    };
+
+    private static readonly Dictionary<string, (string TitleKey, string DescriptionKey)> BuffSkillSummaryLocKeysById = new(StringComparer.Ordinal)
+    {
+        [Content.EchoContentConstants.InkletSlipperyBuffSkillId] = ("ECHO_CORE_SKILL_INKLET.title", "ECHO_CORE_SKILL_INKLET.description"),
+    };
+
     public static string GetCardEntry<TCard>() where TCard : CardModel
     {
         return ModelDb.GetEntry(typeof(TCard));
@@ -47,5 +70,43 @@ public static class EchoSkillCardRegistry
 
         canonicalCard = ModelDb.GetByIdOrNull<CardModel>(new ModelId("CARD", skillCardId));
         return canonicalCard != null;
+    }
+
+    public static bool TryGetSkillSummaryLocKeys(string? skillCardId, out string titleKey, out string descriptionKey)
+    {
+        titleKey = string.Empty;
+        descriptionKey = string.Empty;
+        if (string.IsNullOrWhiteSpace(skillCardId))
+        {
+            return false;
+        }
+
+        if (!SkillSummaryLocKeysByEntry.TryGetValue(skillCardId, out var value))
+        {
+            return false;
+        }
+
+        titleKey = value.TitleKey;
+        descriptionKey = value.DescriptionKey;
+        return true;
+    }
+
+    public static bool TryGetBuffSkillSummaryLocKeys(string? buffSkillId, out string titleKey, out string descriptionKey)
+    {
+        titleKey = string.Empty;
+        descriptionKey = string.Empty;
+        if (string.IsNullOrWhiteSpace(buffSkillId))
+        {
+            return false;
+        }
+
+        if (!BuffSkillSummaryLocKeysById.TryGetValue(buffSkillId, out var value))
+        {
+            return false;
+        }
+
+        titleKey = value.TitleKey;
+        descriptionKey = value.DescriptionKey;
+        return true;
     }
 }
