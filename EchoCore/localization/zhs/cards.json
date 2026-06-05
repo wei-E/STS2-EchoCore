@@ -54,5 +54,21 @@
   "ECHO_CORE_CARD_CEREMONIAL_BEAST.title": "仪式践踏",
   "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.title": "仪式践踏",
   "ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "对所有敌人造成 {Damage:diff()} 点伤害。施加 {Vulnerable:diff()} 层易伤。",
-  "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "对所有敌人造成 {Damage:diff()} 点伤害。施加 {Vulnerable:diff()} 层易伤。"
+  "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "对所有敌人造成 {Damage:diff()} 点伤害。施加 {Vulnerable:diff()} 层易伤。",
+  "ECHO_CORE_CARD_VANGUARD_JUNROCK.title": "碎岩",
+  "ECHOCORE-ECHO_CORE_CARD_VANGUARD_JUNROCK.title": "碎岩",
+  "ECHO_CORE_CARD_VANGUARD_JUNROCK.description": "获得 {Block:diff()} 点格挡。获得 {Strength:diff()} 点力量。",
+  "ECHOCORE-ECHO_CORE_CARD_VANGUARD_JUNROCK.description": "获得 {Block:diff()} 点格挡。获得 {Strength:diff()} 点力量。",
+  "ECHO_CORE_CARD_ELECTRO_PREDATOR.title": "追猎雷矢",
+  "ECHOCORE-ECHO_CORE_CARD_ELECTRO_PREDATOR.title": "追猎雷矢",
+  "ECHO_CORE_CARD_ELECTRO_PREDATOR.description": "造成 {Damage:diff()} 点伤害。施加 {Vulnerable:diff()} 层易伤。",
+  "ECHOCORE-ECHO_CORE_CARD_ELECTRO_PREDATOR.description": "造成 {Damage:diff()} 点伤害。施加 {Vulnerable:diff()} 层易伤。",
+  "ECHO_CORE_CARD_SABYR_BOAR.title": "獠牙突进",
+  "ECHOCORE-ECHO_CORE_CARD_SABYR_BOAR.title": "獠牙突进",
+  "ECHO_CORE_CARD_SABYR_BOAR.description": "造成 {HitDamage:diff()} 点伤害两次。若目标已有负面状态，再造成 {Finisher:diff()} 点伤害。",
+  "ECHOCORE-ECHO_CORE_CARD_SABYR_BOAR.description": "造成 {HitDamage:diff()} 点伤害两次。若目标已有负面状态，再造成 {Finisher:diff()} 点伤害。",
+  "ECHO_CORE_CARD_GLACIO_PRISM.title": "冷凝",
+  "ECHOCORE-ECHO_CORE_CARD_GLACIO_PRISM.title": "冷凝",
+  "ECHO_CORE_CARD_GLACIO_PRISM.description": "获得 {Block:diff()} 点格挡。获得 {Strength:diff()} 点力量。",
+  "ECHOCORE-ECHO_CORE_CARD_GLACIO_PRISM.description": "获得 {Block:diff()} 点格挡。获得 {Strength:diff()} 点力量。"
 }

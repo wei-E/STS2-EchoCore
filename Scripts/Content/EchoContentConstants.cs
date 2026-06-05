@@ -22,6 +22,8 @@ public static class EchoContentConstants
     public const string BlockStartAffixId = "echo_core:block_start";
 
     public const string InkletSlipperyBuffSkillId = "echo_core:inklet_slippery";
+    public const string SoulFyshBuffSkillId = "echo_core:soul_fysh_beckon";
+    public const string TunnelerBuffSkillId = "echo_core:tunneler_burrow";
 
     public static int GetDefaultSkillCooldownTurns(EchoClass echoClass)
     {

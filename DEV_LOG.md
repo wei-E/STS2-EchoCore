@@ -805,3 +805,545 @@
   - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
 - Runtime file sync：PASS
   - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+## 2026-06-02 - 第一层鸣潮小怪与对应声骸首版接入
+
+### Summary
+- 开始把 EchoCore 从“只有声骸掉落和玩家补强”推进到“怪物生态 + 对应声骸闭环”。
+- 本轮先接第一层普通怪强度，全部只注入 `Overgrowth`，避免过早进入更高层或精英强度。
+
+### Dependencies / Paths
+- BaseLib 运行时：
+  - `E:\Steam\steamapps\common\Slay the Spire 2\mods\BaseLib.dll`
+- STS2 本地源码镜像：
+  - `E:\Code\sts2mod-dev\sts2-source-code`
+- Aemeath 参考项目：
+  - `E:\Code\sts2mod-dev\mods\aemeath-ww`
+- 鸣潮怪物头像来源：
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3`
+
+### Changes
+- 怪物：
+  - 新增 `Scripts/Monsters/Wuwa/`
+  - 新增共享静态立绘基类 `WuwaStaticMonsterBase`
+  - 新增 4 只鸣潮小怪：
+    - `WuwaVanguardJunrock`
+    - `WuwaElectroPredator`
+    - `WuwaSabyrBoar`
+    - `WuwaGlacioPrism`
+- 遭遇：
+  - 新增 `Scripts/Encounters/Wuwa/`
+  - 新增 3 组只在 `Overgrowth` 生效的普通遭遇：
+    - `WuwaJunrockPairEncounter`
+    - `WuwaPredatorAmbushEncounter`
+    - `WuwaHuntingPackEncounter`
+  - 其中前两组标记为 `Weak`，用于第一层前段出现。
+- 声骸与主动技：
+  - 新增 4 个对应声骸内容文件：
+    - `VanguardJunrockEchoContent`
+    - `ElectroPredatorEchoContent`
+    - `SabyrBoarEchoContent`
+    - `GlacioPrismEchoContent`
+  - 新增 4 张对应主动技卡：
+    - `EchoCoreCardVanguardJunrock`
+    - `EchoCoreCardElectroPredator`
+    - `EchoCoreCardSabyrBoar`
+    - `EchoCoreCardGlacioPrism`
+  - `EchoSkillCardRegistry` 与 `EchoContentBootstrap` 已接入以上新卡和新声骸。
+- 资源：
+  - 新增共享静态怪物场景 `scenes/creature_visuals/echo_core_wuwa_monster_visuals.tscn`
+  - 先接入 4 张占位头像到 `echo-core/ui/monsters/wuwa/`
+- 本地化：
+  - `EchoCore/localization/zhs|eng/monsters.json`
+    - 新增 4 只怪物名称与 move 名
+    - 新增 4 个声骸名称与描述
+    - 新增 4 条主动技摘要
+  - `EchoCore/localization/zhs|eng/cards.json`
+    - 新增 4 张主动技卡牌的中英文名称与描述
+  - 新增 `EchoCore/localization/zhs|eng/encounters.json`
+    - 补 3 组遭遇标题
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+  - `0 warning / 0 error`
+- JSON：PASS
+  - 已用 `ConvertFrom-Json` 校验：
+    - `zhs/cards.json`
+    - `eng/cards.json`
+    - `zhs/monsters.json`
+    - `eng/monsters.json`
+    - `zhs/encounters.json`
+    - `eng/encounters.json`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - `EchoCore.dll` 已由 build 自动同步
+  - `EchoCore.pck` 已手动同步到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Known Issues
+- 怪物立绘当前仍是静态头像占位，只保证战斗链路可跑；后续可替换为正式怪物图或动画。
+- 暂未做局内专项试玩验证，因此当前结论只覆盖编译、导出和资源打包链路。
+- `冷凝棱镜` 当前死亡增益逻辑已接入，但还需要进游戏确认死亡事件时机是否完全符合预期。
+
+### Next
+- 进游戏优先验证：
+  1. 第一层是否能实际刷到这 3 组鸣潮遭遇
+  2. 击败后是否会掉落对应 4 只声骸
+  3. 怪物名、意图名、遭遇名、本地主动技文案是否都正常显示
+  4. `冷凝棱镜` 死亡后是否确实给存活友军加力量
+- 若链路稳定，下一轮再做：
+  - `碎獠猪 + 冷凝棱镜` 这种更功能化的组合遭遇
+  - 正式怪物立绘/动画资源替换
+  - 第一层遭遇数量与数值微调
+
+## 2026-06-02 - 鸣潮小怪战斗立绘与声骸图标分流
+
+### Summary
+- 把 4 只鸣潮小怪的战斗内立绘切到新的正式去背图。
+- 原先使用的缩略头图不再继续充当战斗怪物立绘，改为保留给对应声骸图标使用。
+
+### Resource Source
+- 战斗内立绘来源：
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\战斗内立绘\游戏文件`
+- 缩略头图来源：
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3`
+
+### Changes
+- 新增战斗立绘资源到：
+  - `echo-core/ui/monsters/wuwa/vanguard_junrock_battle.png`
+  - `echo-core/ui/monsters/wuwa/electro_predator_battle.png`
+  - `echo-core/ui/monsters/wuwa/sabyr_boar_battle.png`
+  - `echo-core/ui/monsters/wuwa/glacio_prism_battle.png`
+- 保留并复制缩略头图到声骸图标目录：
+  - `echo-core/ui/echoes/icons/wuwa/*.webp`
+- `WuwaVanguardJunrock`
+  - `WuwaElectroPredator`
+  - `WuwaSabyrBoar`
+  - `WuwaGlacioPrism`
+  已切换 `TexturePath` 指向新的战斗图，并按新图尺寸微调了 `VisualScale / VisualPosition`。
+- `EchoContentFactory.CreateVanillaEcho(...)`
+  - 新增可选 `iconPath` 参数，便于内容层为特定声骸显式指定图标。
+- 以下 4 个声骸定义已改为使用对应缩略头图：
+  - `VanguardJunrockEchoContent`
+  - `ElectroPredatorEchoContent`
+  - `SabyrBoarEchoContent`
+  - `GlacioPrismEchoContent`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+  - `0 warning / 0 error`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏确认：
+  1. 战斗内显示的是新的正式怪物立绘，而不是旧缩略头图
+  2. 奖励、仓库、装备栏中的对应声骸显示的是缩略头图
+  3. 新立绘缩放和站位是否需要继续微调
+
+## 2026-06-02 - 鸣潮小怪缩放下调与同模板开场意图分流
+
+### Summary
+- 把 4 只鸣潮小怪的战斗内立绘整体再缩小一档，减少遮挡和贴地感。
+- 修正 `先锋幼岩` 同场时意图过于同步的问题，让相同怪物实例在开场和后续轮转上不再总是完全一致。
+
+### Changes
+- 下调以下怪物的 `VisualScale`：
+  - `WuwaVanguardJunrock`
+  - `WuwaElectroPredator`
+  - `WuwaSabyrBoar`
+  - `WuwaGlacioPrism`
+- `WuwaVanguardJunrock`
+  - 新增 `OpenWithListen` 开场偏好字段，允许遭遇层为不同实例指定不同首轮倾向。
+  - 在 `GenerateMoveStateMachine()` 中补入额外随机分支，避免稳定落入单一路线。
+- `WuwaJunrockPairEncounter`
+  - 双 `先锋幼岩` 遭遇中，前后两只怪的开场偏好现在被显式拆开，不再默认镜像同步。
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏重点确认：
+  1. 4 只怪当前缩放是否合适，是否还需要继续缩小
+  2. `2x 先锋幼岩` 开场是否已出现不同意图
+  3. `先锋幼岩 + 其他怪` 的中后期轮转是否已经足够自然
+
+## 2026-06-02 - 鸣潮遭遇自定义槽位与紧凑站位
+
+### Summary
+- 修正鸣潮小怪遭遇默认站位过散的问题。
+- 为 3 组第一层遭遇补上自定义 `Slots` 和遭遇场景，让怪群整体更靠右、更紧凑，不再压进玩家区域。
+
+### Changes
+- `WuwaJunrockPairEncounter`
+  - 启用 `HasScene`
+  - 新增 `front / back` 槽位
+  - 两只 `先锋幼岩` 改为显式绑定槽位
+- `WuwaPredatorAmbushEncounter`
+  - 启用 `HasScene`
+  - 新增 `front / back` 槽位
+  - `先锋幼岩` 与 `惊蛰猎手` 改为显式绑定槽位
+- `WuwaHuntingPackEncounter`
+  - 启用 `HasScene`
+  - 新增 `left / middle / right` 槽位
+  - 三怪小队改为显式绑定槽位
+- 新增遭遇场景：
+  - `scenes/encounters/echo_core_encounter_junrock_pair.tscn`
+  - `scenes/encounters/echo_core_encounter_predator_ambush.tscn`
+  - `scenes/encounters/echo_core_encounter_hunting_pack.tscn`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏确认：
+  1. 左侧怪物是否已经不再进入玩家区域
+  2. 三怪遭遇的横向间距是否还需要继续压缩
+  3. 后排怪的纵深是否要再明显一点
+
+## 2026-06-02 - 修正鸣潮遭遇自定义场景加载失败
+
+### Summary
+- 修复了“进入鸣潮遭遇后怪物完全不可见”的问题。
+- 根因不是怪物没生成，而是遭遇自定义场景没有按 `CustomEncounterModel` 的正确方式挂载，导致战斗房间创建槽位场景时直接加载失败。
+
+### Root Cause
+- 上一版只给 3 个遭遇设置了 `HasScene = true`，但没有提供 `CustomScenePath`。
+- `CustomEncounterModel` 的正确接法是显式覆写 `CustomScenePath`，由 BaseLib 的 `EncounterModel.ScenePath` Patch 重定向到自定义场景。
+- 因为没有走这条路径，游戏仍尝试按默认规则查找场景，最终在战斗开始时抛出资源加载错误。
+
+### Changes
+- 为以下遭遇补上正式 `CustomScenePath`：
+  - `WuwaJunrockPairEncounter`
+  - `WuwaPredatorAmbushEncounter`
+  - `WuwaHuntingPackEncounter`
+- 移除手动硬写的 `HasScene = true` 覆写，改为依赖 `CustomEncounterModel` 的默认逻辑自动判断。
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 重新进游戏确认：
+  1. 3 组鸣潮遭遇是否恢复正常显示
+  2. 自定义站位是否已经生效
+  3. 如果显示恢复，再继续微调坐标密度
+
+## 2026-06-02 - 立绘回调放大、惊蛰猎手降伤、遭遇移出弱怪池
+
+### Summary
+- 把 4 只鸣潮小怪的战斗立绘回调放大一点，避免看起来过小。
+- 下调 `惊蛰猎手` 在挂上易伤后的处决技伤害，减少第一层压迫感。
+- 将 3 组鸣潮遭遇全部移出第一层弱怪池，避免开局前几战过早遇到影响体验。
+
+### Changes
+- 立绘缩放上调：
+  - `WuwaVanguardJunrock`：`0.52 -> 0.56`
+  - `WuwaElectroPredator`：`0.50 -> 0.54`
+  - `WuwaSabyrBoar`：`0.50 -> 0.54`
+  - `WuwaGlacioPrism`：`0.48 -> 0.52`
+- `WuwaElectroPredator`
+  - `SPRING_THRUST` 伤害下调：
+    - 基础：`14 -> 12`
+    - 致命敌人：`15 -> 13`
+  - 保留 `2 Vulnerable` 机制，不改其“标记后重击”的身份。
+- 遭遇池调整：
+  - `WuwaJunrockPairEncounter.IsWeak = false`
+  - `WuwaPredatorAmbushEncounter.IsWeak = false`
+  - `WuwaHuntingPackEncounter.IsWeak = false`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏确认：
+  1. 怪物当前尺寸是否合适
+  2. `惊蛰猎手` 在第一层的处决压力是否已合理
+  3. 鸣潮遭遇是否已不再出现在第一层前几场弱怪战中
+
+## 2026-06-03 - 新增灵魂异鱼与地道虫声骸
+
+### Summary
+- 新增 `灵魂异鱼声骸`，主动技改为直接施加 `1` 层灵体，并向抽牌堆洗入 `2` 张原版 `Beckon`。
+- 新增 `地道虫声骸`，主动技改为“获得 `12` 点格挡，本回合不能打出攻击牌，下回合开始时对随机敌人造成 `20` 点伤害”。
+- 两只新声骸都接入了 Buff 型主动技的独立摘要文案，不再依赖通用说明回退。
+
+### Changes
+- 新增 Buff 技能定义：
+  - `SoulFyshBuffSkillContent`
+  - `TunnelerBuffSkillContent`
+- 新增声骸定义：
+  - `SoulFyshEchoContent`
+  - `TunnelerEchoContent`
+- 新增自定义 Power：
+  - `TunnelerBurrowPower`
+- 扩展 `EchoBuffSkillService`：
+  - 支持 `INTANGIBLE`
+  - 支持 `GAIN_BLOCK`
+  - 支持 `ADD_BECKON_TO_DRAW`
+  - 支持 `TUNNELER_BURROW_POWER`
+- 更新独立主动技摘要映射：
+  - `ECHO_CORE_SKILL_SOUL_FYSH`
+  - `ECHO_CORE_SKILL_TUNNELER`
+- 更新中英文本地化：
+  - 新增两只声骸的名称与描述
+  - 新增两组 Buff 技能文案
+  - 新增两组按钮摘要文案
+
+### Dependencies / Paths
+- 项目：
+  - `E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj`
+- 原版源码参考：
+  - `E:\Code\sts2mod-dev\mods\sts2-source-code\MegaCrit.Sts2.Core.Models.Monsters\SoulFysh.cs`
+  - `E:\Code\sts2mod-dev\mods\sts2-source-code\MegaCrit.Sts2.Core.Models.Cards\Beckon.cs`
+  - `E:\Code\sts2mod-dev\mods\sts2-source-code\MegaCrit.Sts2.Core.Models.Monsters\Tunneler.cs`
+  - `E:\Code\sts2mod-dev\mods\sts2-source-code\MegaCrit.Sts2.Core.Models.Powers\ChainsOfBindingPower.cs`
+- 导出工具：
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe`
+- 运行时同步目录：
+  - `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Localization JSON：PASS
+  - `EchoCore/localization/zhs/monsters.json`
+  - `EchoCore/localization/eng/monsters.json`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Known Issues
+- 本轮只做了编译、打包和资源同步，尚未做实机战斗验证。
+- `灵魂异鱼` 当前摘要文案里直接沿用原版卡名 `Beckon`，若后续需要完整中文化，可再补一层显示替换。
+
+### Next
+- 进游戏确认：
+  1. `灵魂异鱼声骸` 点击后是否正确获得 `1` 层灵体，并向抽牌堆加入 `2` 张 `Beckon`
+  2. `地道虫声骸` 点击后本回合是否确实无法打出攻击牌
+  3. `地道虫声骸` 是否会在下个我方回合开始时，对随机敌人正确造成 `20` 点伤害
+  4. 两只声骸在库存界面与战斗按钮上的独立文案是否都正常显示
+
+## 2026-06-03 - 隐世回光 5件确认与全声骸扩展
+
+### Summary
+- 确认 `隐世回光 5件` 当前实现已经是“本场战斗只生效一次”。
+- 将 `隐世回光` 追加到所有 EchoCore 已注册声骸的候选合鸣池中。
+
+### Changes
+- 检查 `HiddenLightRevivePower`：
+  - 触发致命伤保命后会立即 `PowerCmd.Remove(this)`
+  - 因此同一场战斗不会再次触发
+- 更新 `EchoContentBootstrap.RegisterAll()`：
+  - 在声骸注册后统一执行默认合鸣扩展
+  - 把 `HiddenLightSonataId` 追加到所有已注册声骸
+- 新增注册辅助：
+  - `RegisterDefaultSonataAssignments()`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Runtime DLL sync：PASS
+  - `EchoCore.dll` 已通过 build 自动同步到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\`
+
+### Known Issues
+- 本轮未重新导出 `EchoCore.pck`，因为没有资源或本地化变更，仅涉及 C# 注册逻辑。
+- 仍需实机确认所有声骸在库存 / 掉落 / 开发菜单中都能看到 `隐世回光` 候选项。
+
+### Next
+- 进游戏确认：
+  1. 任意声骸现在是否都能调谐到 `隐世回光`
+  2. `隐世回光 5件` 在同一场战斗里是否仍然只会触发一次
+  3. 新增全局候选后，奖励掉落和开发菜单的合鸣下拉是否都正常
+
+## 2026-06-02 - 弱怪池补充 4 个鸣潮单怪遭遇
+
+### Summary
+- 为当前已实现的 4 只鸣潮小怪各补了一个单怪弱遭遇。
+- 现在第一层弱怪池负责“单怪认识战”，而原有 3 组鸣潮组合遭遇继续留在强怪池。
+
+### Changes
+- 新增弱怪遭遇：
+  - `WuwaSoloJunrockEncounter`
+  - `WuwaSoloElectroPredatorEncounter`
+  - `WuwaSoloSabyrBoarEncounter`
+  - `WuwaSoloGlacioPrismEncounter`
+- 设计约束：
+  - 全部 `RoomType.Monster`
+  - 全部 `IsWeak = true`
+  - 全部只生成 1 只怪
+  - 第一版不加自定义遭遇场景，直接使用默认单怪站位
+- 新增本地化标题：
+  - `ECHO_CORE_ENCOUNTER_SOLO_JUNROCK`
+  - `ECHO_CORE_ENCOUNTER_SOLO_ELECTRO_PREDATOR`
+  - `ECHO_CORE_ENCOUNTER_SOLO_SABYR_BOAR`
+  - `ECHO_CORE_ENCOUNTER_SOLO_GLACIO_PRISM`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏确认：
+  1. 第一层前几战是否会刷到这 4 个单怪遭遇
+  2. 原有 `幼岩群 / 猎手伏击 / 狩猎队` 是否仍然只在强怪池出现
+  3. 单怪默认站位是否已经足够自然
+
+## 2026-06-02 - 立绘继续放大并放松组合站位
+
+### Summary
+- 应用户反馈，把 4 只鸣潮小怪的立绘继续放大一档。
+- 调整组合遭遇槽位：不再贴得过紧，整体向右平移，并拉开横向间距。
+
+### Changes
+- 立绘缩放上调：
+  - `WuwaVanguardJunrock`：`0.56 -> 0.60`
+  - `WuwaElectroPredator`：`0.54 -> 0.58`
+  - `WuwaSabyrBoar`：`0.54 -> 0.58`
+  - `WuwaGlacioPrism`：`0.52 -> 0.56`
+- 遭遇场景站位调整：
+  - `echo_core_encounter_hunting_pack.tscn`
+  - `echo_core_encounter_junrock_pair.tscn`
+  - `echo_core_encounter_predator_ambush.tscn`
+- 调整方向：
+  - 所有组合槽位整体更靠右
+  - 横向间距扩大，减少“贴脸挤团”观感
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏确认：
+  1. 4 只怪当前尺寸是否已经到位
+  2. 三怪组合是否已经不再过挤
+  3. 整体右移后是否还需要再往右一点
+
+## 2026-06-02 - 狩猎队移除惊蛰猎手
+
+### Summary
+- 按用户反馈，把 `狩猎队` 遭遇中的 `惊蛰猎手` 移除。
+- 该遭遇现在改为 `先锋幼岩 + 碎獠猪 + 冷凝棱镜`，保留三怪结构，但去掉易伤处决压力点。
+
+### Changes
+- `WuwaHuntingPackEncounter`
+  - `AllPossibleMonsters` 中移除 `WuwaElectroPredator`
+  - `GenerateMonsters()` 中右侧单位改为 `WuwaGlacioPrism`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏确认：
+  1. `狩猎队` 是否已不再出现 `惊蛰猎手`
+  2. 新版三怪压力是否已明显下降
+
+## 2026-06-04 - 双冷凝棱镜弱遭遇
+
+### Summary
+- 将 `WuwaSoloGlacioPrismEncounter` 从单棱镜改为双棱镜，提升弱怪池中的该遭遇强度。
+- 同步把遭遇标题调整为复数语义，避免文案和实际战斗内容不一致。
+
+### Changes
+- `WuwaSoloGlacioPrismEncounter`
+  - `GenerateMonsters()` 由 `1x 冷凝棱镜` 改为 `2x 冷凝棱镜`
+- 本地化：
+  - `zhs`: `冷凝棱镜 -> 冷凝棱镜群`
+  - `eng`: `Glacio Prism -> Glacio Prism Pair`
+
+### Verification
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+- Build：
+  - 代码编译产物已生成，但 `dotnet build` 最后同步 `EchoCore.dll` 到游戏目录时失败
+  - 原因：`SlayTheSpire2.exe` 正在占用 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.dll`
+
+### Next
+- 关闭游戏后再跑一轮完整 build，可恢复 DLL 同步验证链路。
+- 进游戏确认 `冷凝棱镜群` 是否已按双怪出现。
+
+## 2026-06-05 - 鸣潮二层怪开发文档
+
+### Summary
+- 新增一份二层鸣潮怪开发规划文档，明确首批普通怪、二层精英、推荐机制、实现边界与开发顺序。
+- 这轮只做规划沉淀，不改动实际战斗逻辑。
+
+### Changes
+- 新增文档：
+  - `Docs/WuwaFloor2MonsterPlan.md`
+- 文档内容覆盖：
+  - 首批二层普通怪：`裂变幼岩`、`遁地鼠`、`巡徊猎手`、`绿熔蜥（稚形）`
+  - 二层精英：`蚀脊龙`
+  - `裂变幼岩` 的死亡分裂方案
+  - `蚀脊龙` 的 `震慑` Power / 卡牌状态方案
+  - 推荐遭遇分层与实现顺序
+
+### Dependencies / Paths
+- 项目：
+  - `E:\Code\sts2mod-dev\mods\EchoCore`
+- 原版源码参考：
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Monsters\MagiKnight.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Monsters\FrogKnight.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Monsters\SoulFysh.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Monsters\Tunneler.cs`
+- 机制与怪物资料：
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\monster_mechanics_reference.md`
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\monster_echo_reference.md`
+
+### Verification
+- 文档检查：PASS
+  - `Docs/WuwaFloor2MonsterPlan.md` 已创建
+- Build / Export：
+  - 本轮未执行
+  - 原因：仅新增开发文档，无代码或资源改动
+
+### Known Issues
+- 文档中的数值和遭遇分层仍属于第一版建议值，后续需要实机测试后微调。
+- `蚀脊龙` 的 `震慑` 实现仍是当前批次里技术风险最高的部分，尤其是抽牌事件挂接与卡牌状态显示。
+
+### Next
+- 按文档顺序优先实现：
+  1. `遁地鼠`
+  2. `巡徊猎手`
+  3. `绿熔蜥（稚形）`
+  4. `裂变幼岩`
+  5. `蚀脊龙`

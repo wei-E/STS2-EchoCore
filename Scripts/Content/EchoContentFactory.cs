@@ -38,6 +38,7 @@ public static class EchoContentFactory
         EchoClass echoClass,
         int cost,
         IReadOnlyList<string> dropTags,
+        string? iconPath = null,
         EchoFormType formType = EchoFormType.TacticalCard,
         IReadOnlyList<string>? sonataIds = null,
         int? skillCooldownTurnsOverride = null)
@@ -46,7 +47,7 @@ public static class EchoContentFactory
             id,
             nameKey,
             descriptionKey,
-            EchoContentConstants.DefaultIconPath,
+            iconPath ?? EchoContentConstants.DefaultIconPath,
             EchoContentConstants.OwnerModId,
             echoClass,
             cost,

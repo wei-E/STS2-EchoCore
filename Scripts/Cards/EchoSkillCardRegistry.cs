@@ -10,6 +10,10 @@ public static class EchoSkillCardRegistry
 {
     private static readonly Dictionary<string, Type> CardTypesByEntry = new(StringComparer.Ordinal)
     {
+        [GetCardEntry<EchoCoreCardVanguardJunrock>()] = typeof(EchoCoreCardVanguardJunrock),
+        [GetCardEntry<EchoCoreCardElectroPredator>()] = typeof(EchoCoreCardElectroPredator),
+        [GetCardEntry<EchoCoreCardSabyrBoar>()] = typeof(EchoCoreCardSabyrBoar),
+        [GetCardEntry<EchoCoreCardGlacioPrism>()] = typeof(EchoCoreCardGlacioPrism),
         [GetCardEntry<EchoCoreCardLeafSlimeS>()] = typeof(EchoCoreCardLeafSlimeS),
         [GetCardEntry<EchoCoreCardShrinkerBeetle>()] = typeof(EchoCoreCardShrinkerBeetle),
         [GetCardEntry<EchoCoreCardNibbit>()] = typeof(EchoCoreCardNibbit),
@@ -28,6 +32,10 @@ public static class EchoSkillCardRegistry
 
     private static readonly Dictionary<string, (string TitleKey, string DescriptionKey)> SkillSummaryLocKeysByEntry = new(StringComparer.Ordinal)
     {
+        [GetCardEntry<EchoCoreCardVanguardJunrock>()] = ("ECHO_CORE_SKILL_VANGUARD_JUNROCK.title", "ECHO_CORE_SKILL_VANGUARD_JUNROCK.description"),
+        [GetCardEntry<EchoCoreCardElectroPredator>()] = ("ECHO_CORE_SKILL_ELECTRO_PREDATOR.title", "ECHO_CORE_SKILL_ELECTRO_PREDATOR.description"),
+        [GetCardEntry<EchoCoreCardSabyrBoar>()] = ("ECHO_CORE_SKILL_SABYR_BOAR.title", "ECHO_CORE_SKILL_SABYR_BOAR.description"),
+        [GetCardEntry<EchoCoreCardGlacioPrism>()] = ("ECHO_CORE_SKILL_GLACIO_PRISM.title", "ECHO_CORE_SKILL_GLACIO_PRISM.description"),
         [GetCardEntry<EchoCoreCardLeafSlimeS>()] = ("ECHO_CORE_SKILL_LEAF_SLIME_S.title", "ECHO_CORE_SKILL_LEAF_SLIME_S.description"),
         [GetCardEntry<EchoCoreCardShrinkerBeetle>()] = ("ECHO_CORE_SKILL_SHRINKER_BEETLE.title", "ECHO_CORE_SKILL_SHRINKER_BEETLE.description"),
         [GetCardEntry<EchoCoreCardNibbit>()] = ("ECHO_CORE_SKILL_NIBBIT.title", "ECHO_CORE_SKILL_NIBBIT.description"),
@@ -47,6 +55,8 @@ public static class EchoSkillCardRegistry
     private static readonly Dictionary<string, (string TitleKey, string DescriptionKey)> BuffSkillSummaryLocKeysById = new(StringComparer.Ordinal)
     {
         [Content.EchoContentConstants.InkletSlipperyBuffSkillId] = ("ECHO_CORE_SKILL_INKLET.title", "ECHO_CORE_SKILL_INKLET.description"),
+        [Content.EchoContentConstants.SoulFyshBuffSkillId] = ("ECHO_CORE_SKILL_SOUL_FYSH.title", "ECHO_CORE_SKILL_SOUL_FYSH.description"),
+        [Content.EchoContentConstants.TunnelerBuffSkillId] = ("ECHO_CORE_SKILL_TUNNELER.title", "ECHO_CORE_SKILL_TUNNELER.description"),
     };
 
     public static string GetCardEntry<TCard>() where TCard : CardModel

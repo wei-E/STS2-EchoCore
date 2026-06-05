@@ -55,5 +55,21 @@
   "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.title": "Ritual Stomp",
   "ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "Deal {Damage:diff()} damage to all enemies. Apply {Vulnerable:diff()} Vulnerable."
   ,
-  "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "Deal {Damage:diff()} damage to all enemies. Apply {Vulnerable:diff()} Vulnerable."
+  "ECHOCORE-ECHO_CORE_CARD_CEREMONIAL_BEAST.description": "Deal {Damage:diff()} damage to all enemies. Apply {Vulnerable:diff()} Vulnerable.",
+  "ECHO_CORE_CARD_VANGUARD_JUNROCK.title": "Shatter Listen",
+  "ECHOCORE-ECHO_CORE_CARD_VANGUARD_JUNROCK.title": "Shatter Listen",
+  "ECHO_CORE_CARD_VANGUARD_JUNROCK.description": "Gain {Block:diff()} Block. Gain {Strength:diff()} Strength.",
+  "ECHOCORE-ECHO_CORE_CARD_VANGUARD_JUNROCK.description": "Gain {Block:diff()} Block. Gain {Strength:diff()} Strength.",
+  "ECHO_CORE_CARD_ELECTRO_PREDATOR.title": "Hunting Bolt",
+  "ECHOCORE-ECHO_CORE_CARD_ELECTRO_PREDATOR.title": "Hunting Bolt",
+  "ECHO_CORE_CARD_ELECTRO_PREDATOR.description": "Deal {Damage:diff()} damage. Apply {Vulnerable:diff()} Vulnerable.",
+  "ECHOCORE-ECHO_CORE_CARD_ELECTRO_PREDATOR.description": "Deal {Damage:diff()} damage. Apply {Vulnerable:diff()} Vulnerable.",
+  "ECHO_CORE_CARD_SABYR_BOAR.title": "Tusk Rush",
+  "ECHOCORE-ECHO_CORE_CARD_SABYR_BOAR.title": "Tusk Rush",
+  "ECHO_CORE_CARD_SABYR_BOAR.description": "Deal {HitDamage:diff()} damage twice. If the target is already debuffed, deal {Finisher:diff()} extra damage.",
+  "ECHOCORE-ECHO_CORE_CARD_SABYR_BOAR.description": "Deal {HitDamage:diff()} damage twice. If the target is already debuffed, deal {Finisher:diff()} extra damage.",
+  "ECHO_CORE_CARD_GLACIO_PRISM.title": "Condensed Gleam",
+  "ECHOCORE-ECHO_CORE_CARD_GLACIO_PRISM.title": "Condensed Gleam",
+  "ECHO_CORE_CARD_GLACIO_PRISM.description": "Gain {Block:diff()} Block. Gain {Strength:diff()} Strength.",
+  "ECHOCORE-ECHO_CORE_CARD_GLACIO_PRISM.description": "Gain {Block:diff()} Block. Gain {Strength:diff()} Strength."
 }

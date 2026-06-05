@@ -1,10 +1,15 @@
 using EchoCore.Scripts.BuffSkills;
 using EchoCore.Scripts.Echoes;
+using EchoCore.Scripts.Powers;
 using EchoCore.Scripts.Registry;
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Logging;
+using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.Cards;
 using MegaCrit.Sts2.Core.Models.Powers;
+using MegaCrit.Sts2.Core.ValueProps;
 
 namespace EchoCore.Scripts.Services;
 
@@ -65,8 +70,44 @@ public static class EchoBuffSkillService
                 await PowerCmd.Apply<SlipperyPower>(player.Creature, appliedPower.Amount, player.Creature, null);
                 return true;
 
+            case "INTANGIBLE":
+                await PowerCmd.Apply<IntangiblePower>(player.Creature, appliedPower.Amount, player.Creature, null);
+                return true;
+
+            case "GAIN_BLOCK":
+                await CreatureCmd.GainBlock(player.Creature, appliedPower.Amount, ValueProp.Unpowered, null);
+                return true;
+
+            case "ADD_BECKON_TO_DRAW":
+                return await TryAddBeckonsToDrawPile(player, appliedPower.Amount);
+
+            case "TUNNELER_BURROW_POWER":
+                await PowerCmd.Apply<TunnelerBurrowPower>(player.Creature, appliedPower.Amount, player.Creature, null);
+                return true;
+
             default:
                 return false;
         }
+    }
+
+    /// <summary>
+    /// 灵魂异鱼主动技直接复用原版 Beckon，避免重复造一张等价状态牌。
+    /// </summary>
+    private static async Task<bool> TryAddBeckonsToDrawPile(Player player, decimal amount)
+    {
+        var combatState = player.Creature.CombatState;
+        if (combatState == null)
+        {
+            return false;
+        }
+
+        int count = Math.Max(0, (int)amount);
+        for (int index = 0; index < count; index++)
+        {
+            CardModel beckon = combatState.CreateCard<Beckon>(player);
+            await CardPileCmd.AddGeneratedCardToCombat(beckon, PileType.Draw, addedByPlayer: true, CardPilePosition.Random);
+        }
+
+        return true;
     }
 }

@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[node name="EchoCoreEncounterPredatorAmbush" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+
+[node name="front" type="Marker2D" parent="."]
+position = Vector2(1210, 790)
+
+[node name="back" type="Marker2D" parent="."]
+position = Vector2(1595, 700)
