@@ -8,14 +8,14 @@ using MegaCrit.Sts2.Core.Rooms;
 
 namespace EchoCore.Scripts.Encounters.Wuwa;
 
-[CustomID("ECHO_CORE_ENCOUNTER_SOLO_SABYR_BOAR")]
-public sealed class WuwaSoloSabyrBoarEncounter : CustomEncounterModel
+[CustomID("ECHO_CORE_ENCOUNTER_SOLO_AERO_PREDATOR")]
+public sealed class WuwaSoloAeroPredatorEncounter : CustomEncounterModel
 {
-    public override string? CustomScenePath => "res://scenes/encounters/echo_core_encounter_solo_sabyr_boar.tscn";
+    public override string? CustomScenePath => "res://scenes/encounters/echo_core_encounter_solo_aero_predator.tscn";
 
     public override IReadOnlyList<string> Slots => ["solo"];
 
-    public WuwaSoloSabyrBoarEncounter() : base(RoomType.Monster)
+    public WuwaSoloAeroPredatorEncounter() : base(RoomType.Monster)
     {
     }
 
@@ -23,7 +23,7 @@ public sealed class WuwaSoloSabyrBoarEncounter : CustomEncounterModel
 
     public override IEnumerable<EncounterTag> Tags => [EncounterTag.Crawler];
 
-    public override IEnumerable<MonsterModel> AllPossibleMonsters => [ModelDb.Monster<WuwaSabyrBoar>()];
+    public override IEnumerable<MonsterModel> AllPossibleMonsters => [ModelDb.Monster<WuwaAeroPredator>()];
 
     public override bool IsValidForAct(ActModel act)
     {
@@ -32,9 +32,12 @@ public sealed class WuwaSoloSabyrBoarEncounter : CustomEncounterModel
 
     protected override IReadOnlyList<(MonsterModel, string?)> GenerateMonsters()
     {
+        WuwaAeroPredator predator = (WuwaAeroPredator)ModelDb.Monster<WuwaAeroPredator>().ToMutable();
+        predator.OpenWithGust = true;
+
         return
         [
-            (ModelDb.Monster<WuwaSabyrBoar>().ToMutable(), "solo"),
+            (predator, "solo"),
         ];
     }
 }

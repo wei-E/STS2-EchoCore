@@ -11,6 +11,10 @@ namespace EchoCore.Scripts.Encounters.Wuwa;
 [CustomID("ECHO_CORE_ENCOUNTER_SOLO_ELECTRO_PREDATOR")]
 public sealed class WuwaSoloElectroPredatorEncounter : CustomEncounterModel
 {
+    public override string? CustomScenePath => "res://scenes/encounters/echo_core_encounter_solo_electro_predator.tscn";
+
+    public override IReadOnlyList<string> Slots => ["solo"];
+
     public WuwaSoloElectroPredatorEncounter() : base(RoomType.Monster)
     {
     }
@@ -30,7 +34,7 @@ public sealed class WuwaSoloElectroPredatorEncounter : CustomEncounterModel
     {
         return
         [
-            (ModelDb.Monster<WuwaElectroPredator>().ToMutable(), null),
+            (ModelDb.Monster<WuwaElectroPredator>().ToMutable(), "solo"),
         ];
     }
 }

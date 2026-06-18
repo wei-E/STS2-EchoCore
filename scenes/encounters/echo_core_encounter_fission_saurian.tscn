@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[node name="EchoCoreEncounterFissionSaurian" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+
+[node name="left" type="Marker2D" parent="."]
+position = Vector2(1230, 790)
+
+[node name="middle" type="Marker2D" parent="."]
+position = Vector2(1450, 735)
+
+[node name="right" type="Marker2D" parent="."]
+position = Vector2(1660, 700)

@@ -11,6 +11,10 @@ namespace EchoCore.Scripts.Encounters.Wuwa;
 [CustomID("ECHO_CORE_ENCOUNTER_SOLO_GLACIO_PRISM")]
 public sealed class WuwaSoloGlacioPrismEncounter : CustomEncounterModel
 {
+    public override string? CustomScenePath => "res://scenes/encounters/echo_core_encounter_solo_glacio_prism.tscn";
+
+    public override IReadOnlyList<string> Slots => ["left", "right"];
+
     public WuwaSoloGlacioPrismEncounter() : base(RoomType.Monster)
     {
     }
@@ -30,8 +34,8 @@ public sealed class WuwaSoloGlacioPrismEncounter : CustomEncounterModel
     {
         return
         [
-            (ModelDb.Monster<WuwaGlacioPrism>().ToMutable(), null),
-            (ModelDb.Monster<WuwaGlacioPrism>().ToMutable(), null),
+            (ModelDb.Monster<WuwaGlacioPrism>().ToMutable(), "left"),
+            (ModelDb.Monster<WuwaGlacioPrism>().ToMutable(), "right"),
         ];
     }
 }

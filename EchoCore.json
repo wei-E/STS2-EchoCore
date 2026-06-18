@@ -3,7 +3,7 @@
   "name": "Echo Core",
   "author": "维E气泡水 一条咸鱼666666",
   "description": "鸣潮声骸框架",
-  "version": "0.1.0",
+  "version": "0.0.2",
   "has_pck": true,
   "has_dll": true,
   "dependencies": ["BaseLib"],

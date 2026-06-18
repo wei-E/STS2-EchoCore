@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[node name="EchoCoreEncounterSoloFissionJunrock" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+
+[node name="main" type="Marker2D" parent="."]
+position = Vector2(1385, 760)
+
+[node name="split" type="Marker2D" parent="."]
+position = Vector2(1610, 725)

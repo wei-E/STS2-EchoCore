@@ -8,22 +8,22 @@ using MegaCrit.Sts2.Core.Rooms;
 
 namespace EchoCore.Scripts.Encounters.Wuwa;
 
-[CustomID("ECHO_CORE_ENCOUNTER_SOLO_JUNROCK")]
-public sealed class WuwaSoloJunrockEncounter : CustomEncounterModel
+[CustomID("ECHO_CORE_ENCOUNTER_SOLO_BABY_VIRIDBLAZE_SAURIAN")]
+public sealed class WuwaSoloBabyViridblazeSaurianEncounter : CustomEncounterModel
 {
-    public override string? CustomScenePath => "res://scenes/encounters/echo_core_encounter_solo_junrock.tscn";
+    public override string? CustomScenePath => "res://scenes/encounters/echo_core_encounter_solo_baby_viridblaze_saurian.tscn";
 
     public override IReadOnlyList<string> Slots => ["solo"];
 
-    public WuwaSoloJunrockEncounter() : base(RoomType.Monster)
+    public WuwaSoloBabyViridblazeSaurianEncounter() : base(RoomType.Monster)
     {
     }
 
     public override bool IsWeak => true;
 
-    public override IEnumerable<EncounterTag> Tags => [EncounterTag.Slimes];
+    public override IEnumerable<EncounterTag> Tags => [EncounterTag.Crawler];
 
-    public override IEnumerable<MonsterModel> AllPossibleMonsters => [ModelDb.Monster<WuwaVanguardJunrock>()];
+    public override IEnumerable<MonsterModel> AllPossibleMonsters => [ModelDb.Monster<WuwaBabyViridblazeSaurian>()];
 
     public override bool IsValidForAct(ActModel act)
     {
@@ -34,7 +34,7 @@ public sealed class WuwaSoloJunrockEncounter : CustomEncounterModel
     {
         return
         [
-            (ModelDb.Monster<WuwaVanguardJunrock>().ToMutable(), "solo"),
+            (ModelDb.Monster<WuwaBabyViridblazeSaurian>().ToMutable(), "solo"),
         ];
     }
 }

@@ -16,7 +16,7 @@
 - 保留鸣潮怪物辨识度，不做单纯加数值换皮。
 - 二层普通怪至少各自带一个“必须读”的机制点。
 - 第一批普通怪机制控制在中复杂度，避免同时引入过多新系统。
-- 让 `蚀脊龙` 承担第一只真正的二层精英 showcase。
+- 让 `踏光兽` 承担第一只真正的二层精英 showcase。
 
 ## 当前已实现的一层生态
 
@@ -53,7 +53,7 @@
 
 精英：
 
-- `蚀脊龙`
+- `踏光兽`
 
 ## 总体分层原则
 
@@ -398,15 +398,15 @@
 - `绿熔蜥（稚形） + 先锋幼岩`
 - `绿熔蜥（稚形） + 巡徊猎手`
 
-## 五、蚀脊龙
+## 五、踏光兽
 
 建议类名：
 
-- `WuwaDreadmane`
+- `WuwaLighttreaderBeast`
 
 建议 `CustomID`：
 
-- `ECHO_CORE_ELITE_DREADMANE`
+- `ECHO_CORE_ELITE_LIGHTTREADER_BEAST`
 
 定位：
 
@@ -425,7 +425,7 @@
   - 获得 `保留`
   - 打出后：所有敌人获得 `1 Strength`
 
-同时，`蚀脊龙` 在半血以下进入 `暴躁态`：
+同时，`踏光兽` 在半血以下进入 `暴躁态`：
 
 - 攻击提高
 - 更倾向重击或多段
@@ -446,15 +446,15 @@
 
 玩家侧 Power：
 
-- `StaggerOnDrawPower`
+- `LighttreaderStaggerPower`
   - 每回合或每次抽牌事件中，给随机手牌附加 `震慑`
   - 为防止过强，建议限制：
     - 每回合最多触发一次
     - 或者只处理本次新抽到的牌
 
-卡牌侧 Modifier / 状态：
+卡牌侧 Affliction / 状态：
 
-- `EchoCoreStaggeredCardModifier`
+- `LighttreaderStaggeredAffliction`
   - 费用 `+1`
   - 获得 `Retain`
   - 打出后触发“所有敌人获得 1 Strength”
@@ -462,7 +462,7 @@
 
 怪物自身可选再配一个阶段 Power：
 
-- `DreadmaneEnragedPower`
+- `LighttreaderEnragedPower`
   - 作用：标记半血以下已进入暴躁态
   - 防止重复切阶段
 
@@ -473,7 +473,7 @@
   - 效果：稳定高伤
 - `HOWL_OF_DREAD`
   - Intent：`BuffIntent + DebuffIntent`
-  - 效果：给予玩家 `StaggerOnDrawPower`
+  - 效果：给予玩家 `LighttreaderStaggerPower`
 - `FRENZIED_TEAR`
   - Intent：`MultiAttackIntent`
   - 效果：多段攻击
@@ -488,7 +488,7 @@
   - `HOWL_OF_DREAD`
   - `FRENZIED_TEAR`
 - 半血以下：
-  - 获得 `DreadmaneEnragedPower`
+  - 获得 `LighttreaderEnragedPower`
   - 下一轮优先 `BLOODSCENT_RUSH`
   - 后续提升攻击 Move 权重
 
@@ -518,14 +518,14 @@
 2. `巡徊猎手`
 3. `绿熔蜥（稚形）`
 4. `裂变幼岩`
-5. `蚀脊龙`
+5. `踏光兽`
 
 理由：
 
 - `遁地鼠` 最接近原版成熟模板，最快起量
 - `巡徊猎手` 和 `绿熔蜥` 都属于中复杂度，不依赖太多新系统
 - `裂变幼岩` 需要处理死亡替换 / 召唤链路
-- `蚀脊龙` 涉及玩家手牌状态，单独作为一个阶段做最稳
+- `踏光兽` 涉及玩家手牌状态，单独作为一个阶段做最稳
 
 ## 推荐遭遇分层
 
@@ -545,11 +545,11 @@
 
 二层精英池：
 
-- `蚀脊龙`
+- `踏光兽`
 
 第一版不建议：
 
-- `蚀脊龙 + 小怪`
+- `踏光兽 + 小怪`
 
 先把精英主机制跑顺，再考虑带从属单位版本。
 
@@ -565,18 +565,18 @@
 
 精英：
 
-- `Scripts/Monsters/Wuwa/WuwaDreadmane.cs`
+- `Scripts/Monsters/Wuwa/WuwaLighttreaderBeast.cs`
 
 Power：
 
 - `Scripts/Powers/FissionSplitPower.cs`
 - `Scripts/Powers/SaurianHeatPower.cs`
-- `Scripts/Powers/StaggerOnDrawPower.cs`
-- `Scripts/Powers/DreadmaneEnragedPower.cs`
+- `Scripts/Powers/LighttreaderStaggerPower.cs`
+- `Scripts/Powers/LighttreaderEnragedPower.cs`
 
 卡牌状态：
 
-- `Scripts/Cards/Modifiers/EchoCoreStaggeredCardModifier.cs`
+- `Scripts/Afflictions/LighttreaderStaggeredAffliction.cs`
 
 遭遇：
 
@@ -598,7 +598,7 @@ Power：
 
 - 二层怪一眼能看出和一层怪不同
 - 至少有两只普通怪会迫使玩家改变击杀顺序
-- `蚀脊龙` 的 `震慑` 能正常作用于手牌且不会导致规则错乱
+- `踏光兽` 的 `震慑` 能正常作用于手牌且不会导致规则错乱
 
 ## 推荐下一步
 
@@ -607,6 +607,6 @@ Power：
 3. 再做 `巡徊猎手`
 4. `绿熔蜥（稚形）`
 5. `裂变幼岩`
-6. 最后单开 `蚀脊龙`
+6. 最后单开 `踏光兽`
 
 这样可以先把二层普通怪生态立住，再处理真正重机制的精英。

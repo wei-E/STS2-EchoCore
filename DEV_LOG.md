@@ -1312,9 +1312,9 @@
   - `Docs/WuwaFloor2MonsterPlan.md`
 - 文档内容覆盖：
   - 首批二层普通怪：`裂变幼岩`、`遁地鼠`、`巡徊猎手`、`绿熔蜥（稚形）`
-  - 二层精英：`蚀脊龙`
+  - 二层精英：`踏光兽`
   - `裂变幼岩` 的死亡分裂方案
-  - `蚀脊龙` 的 `震慑` Power / 卡牌状态方案
+  - `踏光兽` 的 `震慑` Power / 卡牌状态方案
   - 推荐遭遇分层与实现顺序
 
 ### Dependencies / Paths
@@ -1338,7 +1338,7 @@
 
 ### Known Issues
 - 文档中的数值和遭遇分层仍属于第一版建议值，后续需要实机测试后微调。
-- `蚀脊龙` 的 `震慑` 实现仍是当前批次里技术风险最高的部分，尤其是抽牌事件挂接与卡牌状态显示。
+- `踏光兽` 的 `震慑` 实现仍是当前批次里技术风险最高的部分，尤其是抽牌事件挂接与卡牌状态显示。
 
 ### Next
 - 按文档顺序优先实现：
@@ -1346,4 +1346,800 @@
   2. `巡徊猎手`
   3. `绿熔蜥（稚形）`
   4. `裂变幼岩`
-  5. `蚀脊龙`
+  5. `踏光兽`
+
+## 2026-06-05 - 二层怪首只实现：遁地鼠
+
+### Summary
+- 开始落地鸣潮二层怪，首只实现 `遁地鼠`。
+- 这轮先完成怪物本体、两组二层遭遇、占位资源接入和中英文本地化，建立最小可玩闭环。
+
+### Changes
+- 新增怪物：
+  - `WuwaExcarat`
+- 机制设计：
+  - 参考原版 `Tunneler` 的钻地节奏
+  - 但定位改成“低血量、低伤害、适合多只协同的群体骚扰怪”
+  - 增加 `OpenWithBurrow` 参数，供遭遇侧错开开场，避免同类怪完全同步钻地
+- 新增二层遭遇：
+  - `WuwaExcaratPairEncounter`
+  - `WuwaExcaratJunrockEncounter`
+- 新增本地化：
+  - `ECHO_CORE_MONSTER_EXCARAT`
+  - `ECHO_CORE_ENCOUNTER_EXCARAT_PAIR`
+  - `ECHO_CORE_ENCOUNTER_EXCARAT_JUNROCK`
+- 新增占位战斗资源：
+  - `echo-core/ui/monsters/wuwa/excarat.webp`
+
+### Dependencies / Paths
+- 项目：
+  - `E:\Code\sts2mod-dev\mods\EchoCore`
+- 原版源码参考：
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Monsters\Tunneler.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Encounters\TunnelerWeak.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Encounters\TunnelerNormal.cs`
+- 美术资源：
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\310000200_遁地鼠.webp`
+- 导出工具：
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe`
+- 运行时同步目录：
+  - `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Known Issues
+- `遁地鼠` 当前战斗图先使用缩略图占位，后续若补正式战斗立绘，需要再调一轮缩放和站位。
+- 二层遭遇当前先使用默认站位，若实机里出现挤位或偏移，再补自定义遭遇场景。
+
+### Next
+- 进游戏确认：
+  1. `遁地鼠群` 是否会在二层弱怪池正常出现
+  2. 两只 `遁地鼠` 开场是否已错峰，不会总是同时钻地
+  3. `潜岩夹击` 的强度是否合理
+- 下一只优先实现：`巡徊猎手`
+
+## 2026-06-05 - 二层怪第二只实现：巡徊猎手
+
+### Summary
+- 完成 `巡徊猎手` 的首版实现。
+- 这轮按照“回旋骚扰”定位落地，不复用 `惊蛰猎手` 的易伤处决思路。
+- 同时补了一个二层单怪弱遭遇和一个与 `碎獠猪` 的强怪组合遭遇。
+
+### Changes
+- 新增怪物：
+  - `WuwaAeroPredator`
+- 机制设计：
+  - `GALE_THROW`：稳定单体输出
+  - `CUTTING_GUST`：施加 `1 Weak`
+  - `RETURNING_HUNT`：`5x3` 多段追击
+  - 通过 `OpenWithGust` 允许遭遇侧控制开局节奏
+- 新增二层遭遇：
+  - `WuwaSoloAeroPredatorEncounter`
+  - `WuwaAeroPredatorBoarEncounter`
+- 新增本地化：
+  - `ECHO_CORE_MONSTER_AERO_PREDATOR`
+  - `ECHO_CORE_ENCOUNTER_SOLO_AERO_PREDATOR`
+  - `ECHO_CORE_ENCOUNTER_AERO_PREDATOR_BOAR`
+- 新增占位战斗资源：
+  - `echo-core/ui/monsters/wuwa/aero_predator.webp`
+
+### Dependencies / Paths
+- 项目：
+  - `E:\Code\sts2mod-dev\mods\EchoCore`
+- 参考实现：
+  - `E:\Code\sts2mod-dev\mods\EchoCore\Scripts\Monsters\Wuwa\WuwaElectroPredator.cs`
+  - `E:\Code\sts2mod-dev\mods\EchoCore\Scripts\Monsters\Wuwa\WuwaSabyrBoar.cs`
+- 美术资源：
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\310000050_巡徊猎手.webp`
+- 导出工具：
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe`
+- 运行时同步目录：
+  - `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Known Issues
+- `巡徊猎手` 当前也先使用缩略图占位，后续若补正式战斗图，仍需再调一轮尺寸和站位。
+- 目前 `CUTTING_GUST` 先只挂 `Weak`，若实机感觉威胁不足，可考虑升级为 `Weak + 多段` 的更强联动版本。
+
+### Next
+- 进游戏确认：
+  1. `巡徊猎手` 的 `割风压制 -> 回旋追猎` 节奏是否读感清楚
+  2. `回旋狩猎` 这组遭遇是否比一层后排组合更像二层压力
+  3. `巡徊猎手` 的占位图尺寸是否需要单独调大或右移
+- 下一只优先实现：`绿熔蜥（稚形）`
+
+## 2026-06-05 - 补齐剩余两只二层小怪
+
+### Summary
+- 完成 `绿熔蜥（稚形）` 和 `裂变幼岩` 的首版实现。
+- `绿熔蜥（稚形）` 采用可视化 `Heat` 成长机制。
+- `裂变幼岩` 采用“本体死亡分裂成两只小体，小体死亡反伤”的结构。
+
+### Changes
+- 新增 Power：
+  - `SaurianHeatPower`
+  - `FissionSplitPower`
+- 新增怪物：
+  - `WuwaBabyViridblazeSaurian`
+  - `WuwaFissionJunrock`
+  - `WuwaFissionJunrockShard`
+- 新增二层遭遇：
+  - `WuwaSoloBabyViridblazeSaurianEncounter`
+  - `WuwaSoloFissionJunrockEncounter`
+  - `WuwaFissionSaurianEncounter`
+- 新增本地化：
+  - `ECHO_CORE_MONSTER_BABY_VIRIDBLAZE_SAURIAN`
+  - `ECHO_CORE_MONSTER_FISSION_JUNROCK`
+  - `ECHO_CORE_MONSTER_FISSION_JUNROCK_SHARD`
+  - `ECHO_CORE_ENCOUNTER_SOLO_BABY_VIRIDBLAZE_SAURIAN`
+  - `ECHO_CORE_ENCOUNTER_SOLO_FISSION_JUNROCK`
+  - `ECHO_CORE_ENCOUNTER_FISSION_SAURIAN`
+- 新增占位资源：
+  - `echo-core/ui/monsters/wuwa/baby_viridblaze_saurian.webp`
+  - `echo-core/ui/monsters/wuwa/fission_junrock.webp`
+  - `echo-core/ui/monsters/wuwa/fission_junrock_battle.png`
+
+### Dependencies / Paths
+- 项目：
+  - `E:\Code\sts2mod-dev\mods\EchoCore`
+- 原版源码参考：
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models\MonsterModel.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Commands\CreatureCmd.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Powers\StrengthPower.cs`
+- 美术资源：
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\310000210_绿熔蜥（稚形）.webp`
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\310000020_裂变幼岩.webp`
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\战斗内立绘\游戏文件\裂变幼岩-removebg-preview.png`
+- 导出工具：
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe`
+- 运行时同步目录：
+  - `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Known Issues
+- `绿熔蜥（稚形）` 当前先用缩略图占位，后续若补正式战斗图，需要再调尺寸与站位。
+- `裂变幼岩` 的分裂当前先使用默认站位；若两只小体实机里生成得过散或过近，需要再补自定义遭遇槽位或召唤位置控制。
+- `裂变幼岩` 小体死亡伤害目前按自身 `MaxHp 20%` 向上取整，实机后可能需要压到向下取整或固定值。
+
+### Next
+- 进游戏确认：
+  1. `绿熔蜥（稚形）` 的 `Heat` 层数是否正常增长与清空
+  2. `裂变幼岩` 死亡后是否稳定分裂成两只小体
+  3. 小体死亡伤害是否可格挡且数值合理
+  4. `炽壳裂潮` 这组遭遇是否已经具备二层组合压力
+- 后续可以开始转向 `踏光兽` 精英，或先回头统一调二层四只小怪的站位和数值。
+
+## 2026-06-06 - 踏光兽命名修订与二层精英首版实现
+
+### Summary
+- 将二层精英规划中的 `蚀脊龙` 统一改名为 `踏光兽`，同步修正文档与日志命名。
+- 完成 `踏光兽` 的第一版战斗实现，先跑通半血狂暴、玩家抽牌震慑、打出受震慑牌后敌方加攻这三条核心链路。
+
+### Changes
+- 文档与记录：
+  - `Docs/WuwaFloor2MonsterPlan.md`
+  - `DEV_LOG.md`
+- 新增 Affliction：
+  - `LighttreaderStaggeredAffliction`
+- 新增 Power：
+  - `LighttreaderStaggerPower`
+  - `LighttreaderEnragedPower`
+- 新增精英怪：
+  - `WuwaLighttreaderBeast`
+- 新增二层精英遭遇：
+  - `WuwaLighttreaderBeastEliteEncounter`
+- 新增本地化：
+  - `ECHO_CORE_ELITE_LIGHTTREADER_BEAST`
+  - `ECHO_CORE_ENCOUNTER_LIGHTTREADER_BEAST_ELITE`
+- 新增战斗立绘资源：
+  - `echo-core/ui/monsters/wuwa/lighttreader_beast_battle.png`
+
+### Dependencies / Paths
+- 项目：
+  - `E:\Code\sts2mod-dev\mods\EchoCore`
+- 原版源码参考：
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models\AfflictionModel.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Powers\ChainsOfBindingPower.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Models.Powers\HexPower.cs`
+  - `E:\Code\sts2mod-dev\sts2-source-code\MegaCrit.Sts2.Core.Entities.Cards\CardEnergyCost.cs`
+- BaseLib 参考：
+  - `E:\Code\sts2mod-dev\mods\BaseLib-StS2\Abstracts\CustomPowerModel.cs`
+  - `E:\Code\sts2mod-dev\mods\BaseLib-StS2\Abstracts\ILocalizationProvider.cs`
+- 美术资源：
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\战斗内立绘\踏光兽.png`
+- 导出工具：
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe`
+- 运行时同步目录：
+  - `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Known Issues
+- `震慑` 的第一版还没有接入专门的卡牌 overlay 资源，当前主要依靠额外卡牌文字、费用变化和保留关键字来保证可读性。
+- `踏光兽` 的立绘尺寸与站位还没实机校准，后续大概率还要按战斗截图再调一轮。
+- `Staggering Stare` 当前更偏“挂一次持续压制”，若实机感觉压力不足，可再提高半血后的攻击权重或改为更积极的重新施加节奏。
+
+### Next
+- 进游戏确认：
+  1. `踏光兽` 半血触发后是否稳定进入狂暴并刷新更高压的意图
+  2. `震慑` 是否能正确给手牌加费、赋予保留，并在打出后给所有敌人加力量
+  3. 精英战中的 `震慑` 压力是否已经达到二层应有强度，还是需要再压低或拉高
+  4. `踏光兽` 战斗立绘的大小、纵向位置和是否需要再向右偏移
+- 若机制读感成立，下一步优先补：
+  1. `震慑` 的专用 overlay 表现
+  2. `踏光兽` 的声骸与主动技设计
+  3. 二层普通怪与 `踏光兽` 的统一数值回合
+
+## 2026-06-06 - 二层怪正式战斗立绘接入
+
+### Summary
+- 接入你新做的二层怪战斗立绘。
+- 对带绿幕背景的资源先做透明抠图，再替换项目内战斗图。
+
+### Changes
+- 新接入正式战斗图：
+  - `echo-core/ui/monsters/wuwa/excarat_battle.png`
+  - `echo-core/ui/monsters/wuwa/aero_predator_battle.png`
+  - `echo-core/ui/monsters/wuwa/baby_viridblaze_saurian_battle.png`
+  - `echo-core/ui/monsters/wuwa/lighttreader_beast_battle.png`
+- 重新写入已有战斗图：
+  - `echo-core/ui/monsters/wuwa/fission_junrock_battle.png`
+- 更新怪物资源路径：
+  - `WuwaExcarat`
+  - `WuwaAeroPredator`
+  - `WuwaBabyViridblazeSaurian`
+- `踏光兽` 保持原有战斗图路径不变，仅替换为新处理后的资源文件。
+
+### Dependencies / Paths
+- 原始资源目录：
+  - `E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\战斗内立绘\游戏文件`
+- 项目资源目录：
+  - `E:\Code\sts2mod-dev\mods\EchoCore\echo-core\ui\monsters\wuwa`
+- 导出工具：
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe`
+- 运行时同步目录：
+  - `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\`
+
+### Verification
+- Build：PASS
+  - `dotnet build E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.csproj -c Debug -v minimal`
+- Localization JSON：PASS
+- Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Runtime file sync：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Known Issues
+- 当前绿幕抠图是规则式去背，主体边缘仍可能存在很轻的绿色描边，若实机里明显可见，再单独做一轮边缘去绿。
+- 新立绘已经接入，但 `遁地鼠 / 巡徊猎手 / 绿熔蜥（稚形） / 踏光兽` 的尺寸与站位还没按正式图重新微调。
+
+### Next
+- 进游戏确认：
+  1. 新立绘是否都正常显示
+  2. 是否还有明显绿边
+  3. 四只怪的大小和上下位置是否需要重新调
+
+## 2026-06-06 - 鸣潮角色团子技能设计文档整理
+
+### Summary
+- 整理鸣潮角色主题团子的敌方技能与我方技能设计。
+- 将前期讨论过的角色团子统一成可落地的机制文档，方便后续拆成怪物、召唤物、卡牌或事件奖励。
+
+### Changes
+- 新增设计文档：
+  - `Docs/WuwaDangoSkillDesign.md`
+- 覆盖角色团子：
+  - 安可、守岸人、长离、今汐、折枝、椿
+  - 珂莱塔、千咲、爱弥斯、莫宁、琳奈
+  - 奥古斯塔、尤诺、弗洛洛、卡卡罗
+- 文档按以下结构整理：
+  - 通用关键词草案
+  - 团子总览
+  - 每个团子的核心资源、敌方技能、我方技能、实现备注
+  - 第一批落地优先级与后续实现建议
+
+### Dependencies / Paths
+- 项目目录：
+  - `E:\Code\sts2mod-dev\mods\EchoCore`
+- 设计文档：
+  - `E:\Code\sts2mod-dev\mods\EchoCore\Docs\WuwaDangoSkillDesign.md`
+- 角色资料参考：
+  - `https://encore.moe/character?lang=zh-Hans`
+  - `https://api-v2.encore.moe/api/zh-Hans/character`
+- 已验证参考路径：
+  - `E:\Steam\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64\sts2.dll`
+  - `E:\Code\sts2mod-dev\mods\sts2-source-code`
+
+### Verification
+- 文档写入：PASS
+  - `Docs/WuwaDangoSkillDesign.md` 共 497 行
+- Build：未执行
+  - 本次只新增设计文档，没有代码、资源或本地化改动。
+- Export：未执行
+  - 本次不涉及 `.pck` 资源更新。
+
+### Known Issues
+- 所有技能数值仍是设计占位，未按楼层、费用、稀有度或实战长度校准。
+- `协同攻击`、`乐声队列`、`形态热力`、`反演` 等机制仍需要后续实现对应 Power / Action / UI 表现。
+- BaseLib 运行时 DLL 路径本次检查为缺失；本次未构建，不影响文档整理。
+
+### Next
+- 从文档中优先挑第一批机制落地：
+  1. `长离团子` 的 `心火 / 棋眼`
+  2. `卡卡罗团子` 的 `残象协击`
+  3. `今汐团子` 的 `岁光 / 协同攻击`
+  4. `珂莱塔团子` 的 `镜向箔`
+  5. `琳奈团子` 的 `流光 / 光致变染`
+
+## 2026-06-06 - 我方团子技能原生 Power 版补充
+
+### Summary
+- 根据“我方团子技能尽量挂载到杀戮尖塔2原生 Power 上”的要求，补充一版更便于实现的我方技能方案。
+- 将复杂角色机制先映射为原生 Power、格挡、抽牌、能量、易伤、虚弱等可直接调用的效果。
+
+### Changes
+- 更新设计文档：
+  - `Docs/WuwaDangoSkillDesign.md`
+- 新增章节：
+  - `我方技能原生 Power 挂载版`
+  - `原生 Power 版我方团子技能表`
+  - `推荐第一批我方实现`
+  - `建议暂缓自定义的机制`
+- 重点映射 Power：
+  - `StrengthPower`
+  - `TemporaryStrengthPower`
+  - `DexterityPower`
+  - `ArtifactPower`
+  - `VulnerablePower`
+  - `WeakPower`
+  - `BufferPower`
+  - `BlurPower`
+  - `DoubleDamagePower`
+  - `DrawCardsNextTurnPower`
+  - `EnergyNextTurnPower`
+  - `BlockNextTurnPower`
+  - `VigorPower`
+  - `FreeAttackPower`
+  - `FreeSkillPower`
+
+### Dependencies / Paths
+- 项目目录：
+  - `E:\Code\sts2mod-dev\mods\EchoCore`
+- 设计文档：
+  - `E:\Code\sts2mod-dev\mods\EchoCore\Docs\WuwaDangoSkillDesign.md`
+- 原生 Power 参考：
+  - `E:\Code\sts2mod-dev\mods\sts2-source-code\MegaCrit.Sts2.Core.Models.Powers`
+
+### Verification
+- 文档写入：PASS
+- 原生 Power 源码参考：PASS
+  - 已检查 `DoubleDamagePower`、`BufferPower`、`BlurPower`、`EnergyNextTurnPower`、`DrawCardsNextTurnPower` 行为。
+- Build：未执行
+  - 本次只改设计文档和开发日志，没有代码改动。
+
+### Known Issues
+- `FreeAttackPower`、`FreeSkillPower`、`VigorPower` 等 Power 后续落地前还需要逐个确认具体触发时机和描述是否完全符合预期。
+- `第 N 张牌触发`、`协同攻击`、`乐声队列` 等仍建议先暂缓完整自定义实现。
+
+### Next
+- 若开始实现我方团子技能，建议第一批从低复杂度效果开始：
+  1. `长离团子`：`VulnerablePower` + `VigorPower`
+  2. `守岸人团子`：`RegenPower` + `BufferPower`
+  3. `琳奈团子`：`EnergyNextTurnPower` + `FreeAttackPower`
+  4. `折枝团子`：`FreeSkillPower` + `DrawCardsNextTurnPower`
+  5. `珂莱塔团子`：`ArtifactPower`
+
+## 2026-06-06 - 鸣潮团子 Power 技能图标抓取
+
+### Summary
+- 从 `encore.moe` 公开角色接口抓取后续制作团子 Power 可用的技能图标。
+- 按角色分目录保存，保留技能类型、技能名和 SkillId 到文件名。
+
+### Changes
+- 新增外部美术资源目录：
+  - `E:\Code\sts2mod-dev\美术资源\团子\power_icons\`
+- 按角色保存图标：
+  - `长离_1205`：10 个技能图标
+  - `今汐_1304`：10 个技能图标
+  - `珂莱塔_1107`：10 个技能图标
+  - `千咲_1508`：10 个技能图标
+  - `弗洛洛_1608`：10 个技能图标
+- 生成图标清单：
+  - `E:\Code\sts2mod-dev\美术资源\团子\power_icons\manifest.json`
+
+### Dependencies / Paths
+- 角色资料页面：
+  - `https://encore.moe/character?lang=zh-Hans`
+- 使用接口：
+  - `https://api-v2.encore.moe/api/zh-Hans/character/1205`
+  - `https://api-v2.encore.moe/api/zh-Hans/character/1304`
+  - `https://api-v2.encore.moe/api/zh-Hans/character/1107`
+  - `https://api-v2.encore.moe/api/zh-Hans/character/1508`
+  - `https://api-v2.encore.moe/api/zh-Hans/character/1608`
+- 输出目录：
+  - `E:\Code\sts2mod-dev\美术资源\团子\power_icons`
+
+### Verification
+- 下载数量：PASS
+  - 共 50 个 `.webp` 技能图标，5 个角色各 10 个。
+- Manifest：PASS
+  - `manifest.json` 包含角色名、角色 ID、技能 ID、技能类型、技能名、来源 URL、本地路径。
+- 抽查预览：PASS
+  - 长离与弗洛洛的共鸣回路图标可读取。
+- Build：未执行
+  - 本次只抓取外部美术资源，没有代码或项目资源改动。
+
+### Known Issues
+- 接口返回的技能图标多为白色透明底 UI 图标，后续做 Power 图标时可能需要统一加深色底、描边或元素色背景。
+- `谐度破坏` 的 `SkillName` 为空，文件名中使用了 `unnamed` 占位。
+- 今汐有一个固有技能名为 `dnt/1`，文件名已转义为 `dnt_1`。
+
+### Next
+- 选择要正式接入的 Power 图标后，再从 `power_icons` 复制到项目资源目录并统一命名。
+- 若白色透明图标在 STS2 Power UI 中可读性不足，先批量生成带底色的 PNG 派生版本。
+
+## 2026-06-06 - 其它鸣潮角色非普攻技能图标抓取
+
+### Summary
+- 继续从 `encore.moe` 公开角色接口抓取其它角色技能图标。
+- 按要求过滤掉 `常态攻击` 图标，只保留共鸣技能、共鸣解放、固有技能、变奏技能、共鸣回路、延奏技能、谐度破坏等图标。
+
+### Changes
+- 更新外部美术资源目录：
+  - `E:\Code\sts2mod-dev\美术资源\团子\power_icons\`
+- 新增 48 个有效角色目录。
+- 新增 434 个非普攻 `.webp` 技能图标。
+- 新增非普攻图标清单：
+  - `E:\Code\sts2mod-dev\美术资源\团子\power_icons\manifest_extra_no_normal_attack.json`
+
+### Dependencies / Paths
+- 角色列表接口：
+  - `https://api-v2.encore.moe/api/zh-Hans/character`
+- 角色详情接口：
+  - `https://api-v2.encore.moe/api/zh-Hans/character/{id}`
+- 输出目录：
+  - `E:\Code\sts2mod-dev\美术资源\团子\power_icons`
+
+### Verification
+- 下载数量：PASS
+  - 本轮新增 434 个 `.webp` 技能图标。
+  - `power_icons` 当前总计 53 个角色目录、484 个 `.webp` 图标。
+- 过滤常态攻击：PASS
+  - `manifest_extra_no_normal_attack.json` 中 `常态攻击` 条目为 0。
+- Manifest：PASS
+  - `manifest_extra_no_normal_attack.json` 包含 434 条记录、48 个角色 ID。
+- 空目录清理：PASS
+  - 已删除接口无技能图标的 3 个空目录：
+    - `漂泊者·气动_1408`
+    - `漂泊者·湮灭_1605`
+    - `漂泊者·衍射_1502`
+- Build：未执行
+  - 本次只抓取外部美术资源，没有代码或项目资源改动。
+
+### Known Issues
+- 本轮图标仍主要是白色透明底 UI 素材，正式接入 Power UI 前需要考虑统一底色/描边。
+- 部分 `谐度破坏` 技能名为空，文件名中继续使用 `unnamed` 占位。
+- 部分同名角色存在多形态/多 ID，接口没有技能图标的形态目录已清理。
+
+### Next
+- 从 `manifest_extra_no_normal_attack.json` 里筛选适合团子 Power 的图标。
+- 后续若要接入项目资源，建议按 Power ID 重命名并复制到 `echo-core/ui/powers/` 或单独的 `echo-core/ui/powers/wuwa_dango/`。
+
+## 2026-06-06 - 鸣潮团子技能主题重组
+
+### Summary
+- 按杀戮尖塔 2 本体构筑语言重组长离、今汐、千咲三只角色团子的我方技能方向。
+- 新方向不再逐字翻译鸣潮技能，而是绑定到 STS2 原生资源：长离给 `VigorPower`，今汐给能量/下回合能量，千咲放大敌方 Debuff。
+
+### Changes
+- 更新设计文档：
+  - `E:\Code\sts2mod-dev\mods\EchoCore\Docs\WuwaDangoSkillDesign.md`
+- 新增章节：
+  - `主题重组版：更贴近 STS2 构筑语言`
+- 明确三角色落地循环：
+  - 千咲先挂并翻倍 `WeakPower` / `VulnerablePower` / `FrailPower`
+  - 今汐补 `PlayerCmd.GainEnergy` 或 `EnergyNextTurnPower`
+  - 长离给 `VigorPower`，把下一次攻击变成爆发终结
+
+### Dependencies / Paths
+- 长离实现优先依赖：
+  - `VigorPower`
+  - `DoubleDamagePower`
+  - `EnergyNextTurnPower`
+- 今汐实现优先依赖：
+  - `PlayerCmd.GainEnergy`
+  - `EnergyNextTurnPower`
+  - 额外回合可参考原版 `PaelsEye` 的 `ShouldTakeExtraTurn` / `AfterTakingExtraTurn`
+- 千咲实现优先依赖：
+  - `WeakPower`
+  - `VulnerablePower`
+  - `FrailPower`
+  - Debuff 翻倍可参考原版 `MoltenFist` 读取目标 `VulnerablePower` 后追加同等层数的写法
+
+### Verification
+- 文档更新：PASS
+- 源码可行性核对：PASS
+  - `VigorPower`、`EnergyNextTurnPower`、`PlayerCmd.GainEnergy`、额外回合 Hook、`MoltenFist` 类似逻辑均已确认存在。
+- Build：未执行
+  - 本次只调整设计文档，没有代码改动。
+
+### Known Issues
+- 今汐的额外回合机制可以实现，但第一版不建议做，必须限制每场战斗 1 次以避免无限回合。
+- 千咲的 Debuff 翻倍不是原生通用 Power，需要新增 `DoubleDebuffsAction` 或等价通用动作。
+- 长离的 `VigorPower` 数值仍是草案，落地时需要按冷却、稀有度、获得方式重新调平衡。
+
+### Next
+- 第一实现批次建议：
+  - 长离 `心眼·征`：直接给玩家 `VigorPower`
+  - 今汐 `岁光共鸣`：直接 `PlayerCmd.GainEnergy(1)`
+  - 千咲 `剪刀收弦`：直接给目标 `WeakPower` + `VulnerablePower`
+- 第二批再做千咲 `DoubleDebuffsAction` 和今汐额外回合稀有技能。
+
+## 2026-06-06 Bugfix - Floor 2 Monster Runtime Fixes
+
+### Summary
+- 修复 `裂变幼岩` 在作为最后一只敌人死亡时直接结算胜利、不触发分裂的问题。
+- 修复 `遁地鼠` 在一只死亡后，另一只于钻地状态被打晕会卡住的状态机问题。
+- 调整 `踏光兽` 精英的体型与血量，并顺手修复 `震慑` Power 的文本格式报错。
+
+### Root Cause
+- `裂变幼岩`
+  - 分裂逻辑写在 `AfterDeath` 没错，但本体持有的 `FissionSplitPower` 没有声明 `ShouldStopCombatFromEnding()`。
+  - 结果是它作为最后一只敌人时，战斗先进入结束判定，后续分裂召唤不会稳定成立。
+- `遁地鼠`
+  - 复用了原版 `BurrowedPower`，而该 Power 在格挡被打破后会调用 `CreatureCmd.Stun(base.Owner, "BITE_MOVE")`。
+  - 自定义怪物的普通攻击 move id 写成了 `NIP_MOVE`，导致眩晕恢复后状态机找不到 `BITE_MOVE`，日志报 `no valid state found: BITE_MOVE`。
+- `踏光兽`
+  - 新战斗立绘接入后缩放压得过小。
+  - `LighttreaderStaggerPower` 的 `PowerLoc` 直接使用 `{Amount}`，运行时格式化器会报 `No source extension could handle the selector named "Amount"`。
+
+### Changes
+- [Scripts/Powers/FissionSplitPower.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Powers/FissionSplitPower.cs)
+  - 新增 `ShouldStopCombatFromEnding()`，让本体在死亡分裂前阻止战斗结束。
+- [Scripts/Monsters/Wuwa/WuwaFissionJunrock.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaFissionJunrock.cs)
+  - 去掉 `CombatManager.Instance.IsEnding` 的提前返回，允许死亡后稳定生成两只碎片。
+- [Scripts/Monsters/Wuwa/WuwaExcarat.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaExcarat.cs)
+  - 将普通攻击 move id 从 `NIP_MOVE` 改回兼容原版眩晕恢复逻辑的 `BITE_MOVE`。
+  - 同步将 `NipDamage` / `NipMove` 重命名为 `BiteDamage` / `BiteMove`。
+- [Scripts/Monsters/Wuwa/WuwaLighttreaderBeast.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaLighttreaderBeast.cs)
+  - 战斗立绘缩放从 `0.22` 调整到 `0.30`。
+  - 最大/最小生命整体上调 `30`。
+- [Scripts/Powers/LighttreaderStaggerPower.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Powers/LighttreaderStaggerPower.cs)
+  - 文本占位符改为 `{Amount:diff()}`，消除运行时格式化报错。
+
+### Verification
+- 日志排查：PASS
+  - `C:\Users\Administrator\AppData\Roaming\SlayTheSpire2\logs\godot.log`
+  - 关键问题已定位为：
+    - `no valid state found: BITE_MOVE`
+    - `No source extension could handle the selector named "Amount"`
+- Build：PASS
+  - `dotnet build EchoCore.csproj -c Debug -v minimal`
+- Pack Export：PASS
+  - `E:\Code\sts2mod-dev\GodotSharp\MegaDot_v4.5.1-stable_mono_win64_console.exe --headless --path E:\Code\sts2mod-dev\mods\EchoCore --export-pack "Windows Desktop" E:\Code\sts2mod-dev\mods\EchoCore\EchoCore.pck`
+- Deploy：PASS
+  - 已同步最新 `EchoCore.pck` 到 `E:\Steam\steamapps\common\Slay the Spire 2\mods\EchoCore\EchoCore.pck`
+
+### Next
+- 进游戏优先复测 3 项：
+  - 单独击杀 `裂变幼岩`，确认会分裂成两只碎片且不会提前胜利。
+  - `2x 遁地鼠` 遭遇中击杀一只后，再把另一只钻地格挡打破，确认不再卡死。
+  - `踏光兽` 精英战确认新体型是否仍需继续放大，以及 `+30 HP` 后压力是否合适。
+
+### 2026-06-06 Visual Tuning - 绿熔蜥（稚形）
+- 调整 [Scripts/Monsters/Wuwa/WuwaBabyViridblazeSaurian.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaBabyViridblazeSaurian.cs) 的 VisualScale： .11 -> 0.15。
+- EchoCore.pck 已重新导出并同步到游戏目录。
+- dotnet build 因 SlayTheSpire2.exe 锁定 EchoCore.dll 未能完成复制，但本次仅涉及立绘缩放，pck 更新已足够生效。
+
+
+### 2026-06-06 Bugfix - 裂变幼岩双分裂补正
+- 修复 [Scripts/Monsters/Wuwa/WuwaFissionJunrock.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaFissionJunrock.cs) 只稳定分裂出 1 只小体的问题。
+- 根因：连续裸 CreatureCmd.Add(...) 依赖默认槽位分配，死亡当帧原槽位仍被占用，第二只小体可能拿不到有效槽位。
+- 处理：第一只小体显式占用死亡本体原槽位，第二只小体显式占用 Encounter.GetNextSlot(...) 返回的下一个空槽。
+- [Scripts/Monsters/Wuwa/WuwaFissionJunrockShard.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaFissionJunrockShard.cs) 已改为复用 ission_junrock_battle.png。
+- 本地化更新：幼裂变幼岩 -> 裂变幼岩（小），英文同步为 Fission Junrock (Small)。
+- EchoCore.pck 已重新导出并同步到游戏目录。
+
+### 2026-06-06 Bugfix - 裂变幼岩遭遇槽位补足
+- 参考原版 [TwoTailedRat.cs](E:/Code/sts2mod-dev/sts2-source-code/MegaCrit.Sts2.Core.Models.Monsters/TwoTailedRat.cs) 后确认：稳定召唤同伴的前提是遭遇本身预留足够 `Slots`，而不是仅靠 `CreatureCmd.Add(...)`。
+- 修复 [WuwaSoloFissionJunrockEncounter.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Encounters/Wuwa/WuwaSoloFissionJunrockEncounter.cs)：新增 `Slots => ["first", "second"]`，并让本体初始占 `first`。
+- 修复 [WuwaFissionSaurianEncounter.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Encounters/Wuwa/WuwaFissionSaurianEncounter.cs)：新增 `Slots => ["left", "middle", "right"]`，保证裂变后仍有空槽容纳两只小体。
+- Build：PASS。
+- `EchoCore.pck` 已重新导出并同步到游戏目录。
+### 2026-06-06 Bugfix - 裂变幼岩自定义场景与站位
+- 日志定位到卡死根因：`Creature 裂变幼岩（小） has slot name 'first' but NCombatRoom.EncounterSlots is null.`
+- 说明：只有在遭遇提供 `CustomScenePath` 并实际创建 `EncounterSlots` 时，命名槽位才可用；纯默认遭遇不能只写 `Slots` 就直接用于死亡召唤。
+- 修复 [WuwaSoloFissionJunrockEncounter.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Encounters/Wuwa/WuwaSoloFissionJunrockEncounter.cs)：接入 [echo_core_encounter_solo_fission_junrock.tscn](E:/Code/sts2mod-dev/mods/EchoCore/scenes/encounters/echo_core_encounter_solo_fission_junrock.tscn)，槽位改为 `main/split`，并整体右移。
+- 修复 [WuwaFissionSaurianEncounter.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Encounters/Wuwa/WuwaFissionSaurianEncounter.cs)：接入 [echo_core_encounter_fission_saurian.tscn](E:/Code/sts2mod-dev/mods/EchoCore/scenes/encounters/echo_core_encounter_fission_saurian.tscn)，保证分裂遭遇也有可用 `EncounterSlots`。
+- Build：PASS（仅保留既有 nullability warning）。
+- `EchoCore.pck` 已重新导出并同步到游戏目录。
+### 2026-06-06 Encounter Scene Coverage Sweep
+- 对 `Scripts/Encounters/Wuwa` 全量检查后，已将剩余鸣潮战斗遭遇统一补齐 `CustomScenePath + Slots + GenerateMonsters` 显式槽位映射。
+- 本轮新增自定义遭遇场景：
+  - `echo_core_encounter_aero_predator_boar.tscn`
+  - `echo_core_encounter_excarat_junrock.tscn`
+  - `echo_core_encounter_excarat_pair.tscn`
+  - `echo_core_encounter_lighttreader_beast_elite.tscn`
+  - `echo_core_encounter_solo_aero_predator.tscn`
+  - `echo_core_encounter_solo_baby_viridblaze_saurian.tscn`
+  - `echo_core_encounter_solo_electro_predator.tscn`
+  - `echo_core_encounter_solo_glacio_prism.tscn`
+  - `echo_core_encounter_solo_junrock.tscn`
+  - `echo_core_encounter_solo_sabyr_boar.tscn`
+- 现状：所有鸣潮战斗遭遇均已接入对应场景，不再依赖默认敌方散开布局。
+- Build：PASS（保留既有 `WuwaFissionJunrock.cs` nullability warning）。
+- `EchoCore.pck` 已重新导出并同步到游戏目录。
+
+### 2026-06-06 Excarat Update - 遁地骚扰意图重做
+- 调整 [Scripts/Monsters/Wuwa/WuwaExcarat.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaExcarat.cs)：
+  - 遁地后不再走单纯的地下重击。
+  - 新增地下循环意图：
+    - `TUNNEL_CHOKE_MOVE`：小额攻击并施加 `1 Weak`
+    - `DIZZY_DUST_MOVE`：给随机手牌/抽牌堆牌附加轻量 `眩晕` affliction
+  - 保留原版 `BurrowedPower` 的破格挡出土与眩晕恢复链路，避免再次引入卡死。
+- 新增 [Scripts/Afflictions/ExcaratDizzyAffliction.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Afflictions/ExcaratDizzyAffliction.cs)：
+  - 效果为 `费用 +1`
+  - 牌留在 `手牌/抽牌堆` 时持续存在
+  - 离开 `手牌/抽牌堆` 后自动移除
+- 本地化更新：
+  - `ECHO_CORE_MONSTER_EXCARAT.moves.TUNNEL_CHOKE_MOVE`
+  - `ECHO_CORE_MONSTER_EXCARAT.moves.DIZZY_DUST_MOVE`
+- Verification：
+  - Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`
+  - Export：PASS，已重新导出 `EchoCore.pck`
+  - Deploy：PASS，已同步到游戏目录
+- Next：
+  - 进游戏确认遁地鼠在地下回合会正确显示 `攻击+Debuff` / `Debuff` 两类意图。
+  - 若 `DIZZY_DUST_MOVE` 实机干扰感仍偏弱，再考虑从“给单张牌 affliction”升级到“优先污染手牌且可额外补 1 Weak”。 
+
+### 2026-06-07 Bugfix - 踏光兽意图循环与体型调整
+- 调整 [Scripts/Monsters/Wuwa/WuwaLighttreaderBeast.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaLighttreaderBeast.cs)：
+  - 开场固定使用 `STAGGERING_STARE`，确保精英机制先亮相。
+  - 将原先随机分支循环改为可控节奏：震慑 -> 多段攻击，并在玩家没有 `LighttreaderStaggerPower` 时补震慑，否则回到单体攻击。
+  - 半血狂暴后设置一次性 `DAWNTREAD_RUSH` 插队，避免整场只重复单体攻击意图。
+  - 战斗立绘缩放 `0.30 -> 0.38`，位置从 `(30, -102)` 调整为 `(18, -126)`。
+- Verification：
+  - Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`
+  - 仅保留既有 `WuwaFissionJunrock.cs` nullability warning。
+- Next：
+  - 进游戏复测踏光兽前 4 回合意图是否按“震慑 / 多段 / 补震慑或单击”变化。
+  - 确认新体型是否足够有精英压迫感，若仍偏小可继续上调到 `0.42` 左右。
+
+### 2026-06-07 Visual/UI Follow-up - 踏光兽、绿熔蜥与裂变小体
+- 调整 [Scripts/Powers/LighttreaderStaggerPower.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Powers/LighttreaderStaggerPower.cs)：
+  - 将卡牌异常 `震慑` 的效果说明直接并入玩家侧 `震慑` Power 描述。
+  - 现在悬停玩家身上的 `震慑` 图标即可看到：被震慑的牌费用 +1、获得保留、打出后所有敌人获得 1 力量。
+- 新增 [Scripts/Powers/FissionBurstOnDeathPower.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Powers/FissionBurstOnDeathPower.cs)：
+  - 将裂变幼岩小体的死亡爆炸从隐藏 `AfterDeath` 逻辑改成可见 Power。
+  - Power 层数显示实际死亡伤害，说明为死亡时对所有玩家造成对应伤害。
+- 调整 [Scripts/Monsters/Wuwa/WuwaFissionJunrockShard.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaFissionJunrockShard.cs)：
+  - 小体进场时根据最大生命计算爆炸伤害，并挂上 `FissionBurstOnDeathPower`。
+- 调整 [Scripts/Monsters/Wuwa/WuwaLighttreaderBeast.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaLighttreaderBeast.cs)：
+  - 战斗立绘缩放 `0.38 -> 0.44`。
+  - 位置从 `(18, -126)` 调整到 `(-38, -142)`，整体更大并左移。
+- 调整 [Scripts/Monsters/Wuwa/WuwaBabyViridblazeSaurian.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaBabyViridblazeSaurian.cs)：
+  - 战斗立绘缩放 `0.15 -> 0.19`。
+  - 位置从 `(0, -96)` 调整到 `(0, -108)`。
+- Verification：
+  - Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`
+  - 仅保留既有 `WuwaFissionJunrock.cs` nullability warning。
+  - Deploy：PASS，build 后已复制最新 `EchoCore.dll` 到游戏 mod 目录。
+- Next：
+  - 实机复测玩家 `震慑` 图标悬停说明是否出现完整效果。
+  - 实机复测裂变小体身上是否显示 `裂爆` Power，以及死亡伤害是否仍正常结算。
+  - 继续按截图微调踏光兽和绿熔蜥体型；若踏光兽仍偏小，可考虑 `0.48`。
+
+### 2026-06-07 UI Polish - 鸣潮怪物 Power 头像化
+- 约定：鸣潮怪物自身机制 Power 优先使用对应怪物头像，不再复用 EchoCore 默认图标。
+- 新增资源：
+  - `echo-core/ui/monsters/wuwa/lighttreader_beast.webp`
+  - 来源：`E:\Code\sts2mod-dev\美术资源\ww_monster_icons_nanoka_3.4.3\320000210_踏光兽.webp`
+- 调整 Power 图标：
+  - `FissionSplitPower`：`fission_junrock.webp`
+  - `FissionBurstOnDeathPower`：`fission_junrock.webp`
+  - `SaurianHeatPower`：`baby_viridblaze_saurian.webp`
+  - `LighttreaderStaggerPower`：`lighttreader_beast.webp`
+  - `LighttreaderEnragedPower`：`lighttreader_beast.webp`
+- Verification：
+  - Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`
+  - Export：PASS，已重新导出 `EchoCore.pck`，导出日志确认 `lighttreader_beast.webp` 被导入并打包。
+  - Deploy：PASS，已同步最新 `EchoCore.dll` 和 `EchoCore.pck` 到游戏 mod 目录。
+- Next：
+  - 实机确认 `震慑`、`踏光暴躁`、`裂变核`、`裂爆`、`热势` 的图标是否都显示对应怪物头像。
+  - 后续新增鸣潮怪物 Power 时，先从 `ww_monster_icons_nanoka_3.4.3` 复制头像到 `echo-core/ui/monsters/wuwa/` 再绑定。
+
+### 2026-06-07 Bugfix - 遁地鼠眩尘与 Power 描述格式
+- 日志定位：
+  - 实机日志中的 EchoCore 相关错误为 Power 普通描述使用 `{Amount:diff()}`，但普通 `description` 阶段没有注入 `Amount` 变量。
+  - 受影响项：
+    - `ECHO_CORE_FISSION_BURST_ON_DEATH_POWER.description`
+    - `ECHO_CORE_LIGHTTREADER_STAGGER_POWER.description`
+- 修复 [Scripts/Powers/FissionBurstOnDeathPower.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Powers/FissionBurstOnDeathPower.cs)：
+  - 普通 `description` 改为无变量文本。
+  - `smartDescription` 保留 `{Amount:diff()}`，用于悬停时显示实际层数。
+- 修复 [Scripts/Powers/LighttreaderStaggerPower.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Powers/LighttreaderStaggerPower.cs)：
+  - 普通 `description` 改为无变量文本。
+  - `smartDescription` 保留 `{Amount:diff()}`，用于悬停时显示每回合影响张数。
+- 调整 [Scripts/Monsters/Wuwa/WuwaExcarat.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaExcarat.cs)：
+  - `DIZZY_DUST_MOVE` 从给已有牌附加自定义 `ExcaratDizzyAffliction` 改为向玩家抽牌堆随机位置加入 1 张原版 `Dazed`。
+  - 意图从普通 `DebuffIntent` 改为 `StatusIntent(1)`，更贴合实际效果。
+  - 地下循环不再依赖“是否有可污染牌”的判断，潜地后会稳定使用眩尘塞状态牌。
+- Verification：
+  - Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`
+  - 仅保留既有 `WuwaFissionJunrock.cs` nullability warning。
+  - Deploy：PASS，build 后已复制最新 `EchoCore.dll` 到游戏 mod 目录。
+- Next：
+  - 进游戏复测 `ECHO_CORE_ENCOUNTER_EXCARAT_PAIR`，确认 `DIZZY_DUST_MOVE` 显示状态牌意图，并会向抽牌堆加入 `Dazed`。
+  - 复查 `godot.log`，确认不再出现上述两个 EchoCore Power 描述格式化错误。
+### 2026-06-07 Balance Polish - 遁地鼠压迫与裂爆说明
+- 调整 [Scripts/Monsters/Wuwa/WuwaExcarat.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaExcarat.cs)：
+  - 潜地护盾提升为 `30`，高进阶为 `32`。
+  - 地下循环从“眩尘分支永远命中”改为 `攻击+虚弱+自身力量` 与 `塞入 Dazed` 交替，避免后续只塞牌不攻击。
+  - `TUNNEL_CHOKE_MOVE` 增加 Buff 意图，并在攻击后给遁地鼠自身获得 `1/2 Strength`。
+- 调整 [Scripts/Monsters/Wuwa/WuwaLighttreaderBeast.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Monsters/Wuwa/WuwaLighttreaderBeast.cs)：
+  - `RADIANT_POUNCE` 与 `DAWNTREAD_RUSH` 命中特效改用原版 `vfx/vfx_bite`，保留 `PRISMATIC_REND` 的 `vfx/vfx_attack_slash` 作为撕抓感。
+- 调整 [Scripts/Powers/FissionBurstOnDeathPower.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Powers/FissionBurstOnDeathPower.cs)：
+  - 参考爱弥斯工程的本地化写法后，移除未注册的 `{Amount:diff()}` 占位符。
+  - 裂爆说明改为明确提示“图标下方数字就是伤害值”，避免实机 tooltip 显示占位符源码。
+- Verification：
+  - Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`
+  - Deploy：PASS，build 后已复制最新 `EchoCore.dll` 到游戏 mod 目录。
+  - Warning：仍仅保留既有 `WuwaFissionJunrock.cs(82,31)` nullability warning。
+- Next：
+  - 实机复测遁地鼠潜地后的意图顺序是否按“攻击+加力 / 塞 Dazed”循环。
+  - 悬停裂变小体 `裂爆` 图标，确认不再显示 `{Amount:diff()}`。
+
+### 2026-06-07 Encounter Pool Tuning - 二层单怪下放一层弱怪
+- 调整以下二层单怪遭遇的出现层数：
+  - `ECHO_CORE_ENCOUNTER_SOLO_AERO_PREDATOR`
+  - `ECHO_CORE_ENCOUNTER_SOLO_BABY_VIRIDBLAZE_SAURIAN`
+  - `ECHO_CORE_ENCOUNTER_SOLO_FISSION_JUNROCK`
+- 处理：`IsWeak => true` 保持不变，`IsValidForAct` 从 `Hive` 改为 `Overgrowth`，让它们进入一层弱怪池而不是二层。
+- Verification：
+  - Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`
+  - Deploy：PASS，build 后已复制最新 `EchoCore.dll` 到游戏 mod 目录。
+  - Warning：仍仅保留既有 `WuwaFissionJunrock.cs(82,31)` nullability warning。
+- Next：
+  - 实机确认一层开局弱怪池能刷出巡徊猎手、绿熔蜥（稚形）、裂变幼岩。
+  - 二层弱怪池现在主要剩 `遁地鼠群`，后续需要再补二层专属弱怪或把部分组合降级为弱怪。
+
+### 2026-06-07 Release Safety - 开发者菜单默认关闭
+- 核查声骸开发者菜单发布状态：
+  - `EchoDeveloperConfig.EnableEchoDeveloperMenu` 默认值已为 `false`。
+  - 设置 UI 仍保留手动开关，便于本地开发时启用。
+- 加固 [Scripts/Patches/NRunEchoInventoryOverlayPatch.cs](E:/Code/sts2mod-dev/mods/EchoCore/Scripts/Patches/NRunEchoInventoryOverlayPatch.cs)：
+  - 默认关闭时不再挂载 `EchoDeveloperMenuHost`，普通用户不会初始化隐藏的开发菜单节点。
+  - `EchoDeveloperMenuHost` 内部仍保留开关与非战斗状态判断，作为二次保险。
+- 行为说明：
+  - 发布版默认不会显示“声骸开发”按钮。
+  - 若开发者在局内开启该配置，可能需要重进一局或重载 run 才会挂载按钮。
+- Verification：
+  - Build：PASS，`dotnet build EchoCore.csproj -c Debug -v minimal`
+  - Deploy：PASS，build 后已复制最新 `EchoCore.dll` 到游戏 mod 目录。
+  - Warning：仍仅保留既有 `WuwaFissionJunrock.cs(82,31)` nullability warning。

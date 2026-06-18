@@ -1,4 +1,5 @@
 using EchoCore.Scripts.UI;
+using EchoCore.Scripts.Config;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes;
@@ -21,6 +22,11 @@ public static class NRunEchoInventoryOverlayPatch
         catch (Exception ex)
         {
             Log.Error($"[EchoCore] Failed to attach echo inventory overlay: {ex}");
+        }
+
+        if (!EchoDeveloperConfig.EnableEchoDeveloperMenu)
+        {
+            return;
         }
 
         try
